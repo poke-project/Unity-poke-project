@@ -17,7 +17,6 @@ public class PlayerMovement : MonoBehaviour {
     private eDirection direction;
     private Animator animator;
 
-	// Use this for initialization
 	void Start ()
     {
         targetPosition = transform.position;
@@ -26,9 +25,9 @@ public class PlayerMovement : MonoBehaviour {
         animator = GetComponent<Animator>();
 	}
 	
-	// Update is called once per frame
 	void Update ()
     {
+        // Get a new movement input
         if (!inMovement)
         {
             if (Input.GetKey(Inputs.instance.left_key))

@@ -3,6 +3,9 @@ using System.Collections;
 
 abstract public class AZone : MonoBehaviour
 {
+    public static AZone instance;
+
+    // Width and Height should be set for each zone
     protected abstract int width
     {
         get;
@@ -11,8 +14,8 @@ abstract public class AZone : MonoBehaviour
     {
         get;
     }
+    // Map is computed on Start
     protected GameObject[,] map;
-    public static AZone instance;
 
     void Start()
     {
