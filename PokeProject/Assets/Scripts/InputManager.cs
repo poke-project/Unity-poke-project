@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Inputs : MonoBehaviour {
+public class InputManager : MonoBehaviour {
 
-    public static Inputs instance;
+    public static InputManager instance;
+
     public KeyCode left_key;
     public KeyCode right_key;
     public KeyCode up_key;

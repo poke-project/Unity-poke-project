@@ -3,13 +3,12 @@ using System.Collections;
 
 public class PersistentData : MonoBehaviour {
 
-	public static PersistentData	instance;
-
+    [HideInInspector]
 	public bool shouldLoadLevel;
+    [HideInInspector]
 	public string fileName;
 
 	void Start () {
-		instance = this;
 		shouldLoadLevel = false;
 		fileName = "";
 		Object.DontDestroyOnLoad(gameObject);

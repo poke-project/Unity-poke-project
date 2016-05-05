@@ -4,54 +4,80 @@ using System.Collections.Generic;
 using System.Xml; 
 using System.Xml.Serialization;
 
+// Class holding the game's data
 public class Game
 {
-	public string	fileName;
-	public string	test;
+	private static Game	instance;
 
-	[XmlArray(ElementName = "Objects")]
-	public List<GameObjectData> objects = new List<GameObjectData>();
+	[XmlArray(ElementName = "GameObjects")]
+	public List<ObjectData> objects = new List<ObjectData>();
+
+	[XmlIgnore]
 	public Dictionary<string, Object>	dic = new Dictionary<string, Object>();
+	[XmlIgnore]
+	public string	fileName;
 
-	public Game()
+	private Game()
 	{
+		// Store prefabs with name as key
 		Object[] objs = Resources.LoadAll("Prefabs");
-            Debug.Log("add : " + objs.Length);
 		foreach (Object o in objs)
 		{
 			dic.Add(o.name, o);
-            Debug.Log("add : " + o.name);
+		}
+	}
+
+	public static Game Instance
+	{
+		get
+		{
+			if (instance == null)
+			{
+				instance = new Game();
+			}
+			return instance;
 		}
 	}
 
 	public void	saveCurrentObjects()
 	{
+		// Save all GameObjects in scene before serialization
 		object[] obj = GameObject.FindObjectsOfType(typeof (GameObject));
 		foreach (object o in obj)
 		{
-			GameObjectData objData = new GameObjectData((GameObject)o);
+			ObjectData objData = new ObjectData((GameObject)o);
 			objects.Add(objData);
 		}
 	}
 
 	public void createObjects()
 	{
-		foreach (GameObjectData objData in objects)
+		// Instantiate and place objects according to xml save
+		Transform	mapTransform = GameObject.Find ("map").transform;
+		foreach (ObjectData objData in objects)
 		{
-            if (dic.ContainsKey(objData.data.name))
+            if (dic.ContainsKey(objData.name))
             {
                 GameObject go;
-                if (objData.data.tag != "Player")
+                if (objData.tag != "Player")
                 {
-                    go = (GameObject)GameObject.Instantiate(dic[objData.data.name]);
-                    go.transform.position = new Vector3(objData.data.x, objData.data.y, objData.data.z);
+                    go = (GameObject)GameObject.Instantiate(dic[objData.name]);
+					go.transform.parent = mapTransform;
+                    go.transform.position = objData.pos;
+                    int index = go.name.LastIndexOf('(');
+                    if (index != -1)
+                    {
+                        go.name = go.name.Substring(0, index);
+                    }
                 }
                 else
                 {
-                    // If gameObject is the player
                 }
-                //go.transform.position = new Vector3(objData.data.x, objData.data.y, objData.data.z);
             }
 		}
+	}
+
+	public void restoreManagers()
+	{
 	}
 }

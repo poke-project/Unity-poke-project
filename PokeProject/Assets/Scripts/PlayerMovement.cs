@@ -30,22 +30,22 @@ public class PlayerMovement : MonoBehaviour {
         // Get a new movement input
         if (!inMovement)
         {
-            if (Input.GetKey(Inputs.instance.left_key))
+            if (Input.GetKey(InputManager.instance.left_key))
             {
                 targetPosition = new Vector2(transform.position.x - 1, transform.position.y);
                 direction = eDirection.LEFT;
             }
-            if (Input.GetKey(Inputs.instance.right_key))
+            if (Input.GetKey(InputManager.instance.right_key))
             {
                 targetPosition = new Vector2(transform.position.x + 1, transform.position.y);
                 direction = eDirection.RIGHT;
             }
-            if (Input.GetKey(Inputs.instance.down_key))
+            if (Input.GetKey(InputManager.instance.down_key))
             {
                 targetPosition = new Vector2(transform.position.x, transform.position.y - 1);
                 direction = eDirection.DOWN;
             }
-            if (Input.GetKey(Inputs.instance.up_key))
+            if (Input.GetKey(InputManager.instance.up_key))
             {
                 targetPosition = new Vector2(transform.position.x, transform.position.y + 1);
                 direction = eDirection.UP;

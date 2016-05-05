@@ -5,14 +5,15 @@ using System.Xml;
 using System.Xml.Serialization; 
 using System.IO; 
 using System.Text; 
+using System;
 
 public class XmlSaveLoad : MonoBehaviour {
 
 	private Rect save, load; 
 	private string fileLocation; 
-	private Game myGame; 
 	private string data; 
 	private XmlWriterSettings settings;
+	private Type[] dataTypes;
 
 	void Start () { 
 		save = new Rect(10,80,100,20); 
@@ -21,12 +22,13 @@ public class XmlSaveLoad : MonoBehaviour {
 		fileLocation = Application.dataPath + "/Resources/Saves"; 
 		Directory.CreateDirectory(fileLocation);
 
-		myGame = new Game();
+		// Peut etre utilise pour preciser les types des data serializees
+		dataTypes = new Type[] { };
 
 		settings = new XmlWriterSettings();
 		settings.Indent = true;
 
-		if (PersistentData.instance.shouldLoadLevel)
+		if (GameManager.instance.persistentData.shouldLoadLevel)
 		{
 			loadLevel();
 		}
@@ -38,22 +40,22 @@ public class XmlSaveLoad : MonoBehaviour {
 	{    
 		if (GUI.Button(load, "Load"))
 		{ 
-			PersistentData.instance.shouldLoadLevel = true;
-			PersistentData.instance.fileName = "mdrfile";
+			GameManager.instance.persistentData.shouldLoadLevel = true;
+			GameManager.instance.persistentData.fileName = "gameSave";
             Application.LoadLevel("cleanScene");
 		} 
 		
 		if (GUI.Button(save, "Save"))
 		{ 
-			myGame.saveCurrentObjects();
-			SerializeObject("mdrfile", myGame.objects);
+			GameManager.instance.game.saveCurrentObjects();
+			SerializeObject("gameSave", GameManager.instance.game);
 		} 
 	} 
 
 	public void saveGame(string fileName)
 	{
-		myGame.saveCurrentObjects ();
-		SerializeObject (fileName, myGame.objects);
+		GameManager.instance.game.saveCurrentObjects ();
+		SerializeObject (fileName, GameManager.instance.game);
 	}
 
 	private byte[] StringToUTF8ByteArray(string xmlString) 
@@ -63,39 +65,41 @@ public class XmlSaveLoad : MonoBehaviour {
 		return (byteArray); 
 	} 
 	
-	private void SerializeObject(string fileName, object obj) 
+	private void SerializeObject(string fileName, Game obj) 
 	{
 		Stream fs = new FileStream(fileLocation + "/" + fileName, FileMode.Create);
 		XmlWriter xmlWriter = XmlWriter.Create (fs, settings);
-		XmlSerializer xs = new XmlSerializer(typeof(List<GameObjectData>)); 
+		XmlSerializer xs = new XmlSerializer(typeof(Game)); 
 		xs.Serialize(xmlWriter, obj); 
 		xmlWriter.Close();
 	} 
 	
 	private object DeserializeObject(string xmlizedString) 
 	{ 
-		XmlSerializer xs = new XmlSerializer(typeof(List<GameObjectData>)); 
+		XmlSerializer xs = new XmlSerializer(typeof(Game)); 
 		MemoryStream memoryStream = new MemoryStream(StringToUTF8ByteArray(xmlizedString)); 
 		return (xs.Deserialize(memoryStream)); 
 	} 
 	
 	private void loadLevel()
 	{
-		StreamReader r = File.OpenText(fileLocation + "/" + PersistentData.instance.fileName); 
+		StreamReader r = File.OpenText(fileLocation + "/" + GameManager.instance.persistentData.fileName); 
 		data = r.ReadToEnd(); 
 		r.Close(); 
 		if (data != "") 
 		{ 
-			myGame.objects = (List<GameObjectData>)DeserializeObject(data); 
-			myGame.createObjects();
+			// Verifier que l'on recupere bien tout
+			GameManager.instance.game = (Game)DeserializeObject(data); 
+			GameManager.instance.game.createObjects();
+            GameManager.instance.game.restoreManagers();
 		} 
 	}
 
 	public void loadGame(string toLoad)
 	{
 		// VERIFIER VALIDITE DU NOM ICI
-		PersistentData.instance.fileName = toLoad;
-		PersistentData.instance.shouldLoadLevel = true;
+		GameManager.instance.persistentData.fileName = toLoad;
+		GameManager.instance.persistentData.shouldLoadLevel = true;
 		Application.LoadLevel ("cleanScene");
 	}
 } 
