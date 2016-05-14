@@ -9,24 +9,33 @@ using System;
 
 public class XmlSaveLoad : MonoBehaviour {
 
+    public string saveName;
+
+    private Game myGame;
 	private Rect save, load; 
 	private string fileLocation; 
-	private string data; 
 	private XmlWriterSettings settings;
 	private Type[] dataTypes;
 
-	void Start () { 
-		save = new Rect(10,80,100,20); 
-		load = new Rect(10,100,100,20); 
-
-		fileLocation = Application.dataPath + "/Resources/Saves"; 
+    void Awake()
+    {
+        fileLocation = Application.dataPath + "/Resources/Saves";
 		Directory.CreateDirectory(fileLocation);
 
-		// Peut etre utilise pour preciser les types des data serializees
-		dataTypes = new Type[] { };
+        // Peut etre utilise pour preciser les types des data serializees
+        dataTypes = new Type[] { };
+        settings = new XmlWriterSettings();
+        settings.Indent = true;
 
-		settings = new XmlWriterSettings();
-		settings.Indent = true;
+        myGame = Game.Instance;
+
+		save = new Rect(10,80,100,20); 
+		load = new Rect(10,100,100,20);
+
+        saveName = "pokemonSave"; 
+    }
+
+    void Start () { 
 
 		if (GameManager.instance.persistentData.shouldLoadLevel)
 		{
@@ -39,27 +48,23 @@ public class XmlSaveLoad : MonoBehaviour {
 	void OnGUI() 
 	{    
 		if (GUI.Button(load, "Load"))
-		{ 
-			GameManager.instance.persistentData.shouldLoadLevel = true;
-			GameManager.instance.persistentData.fileName = "gameSave";
-            Application.LoadLevel("cleanScene");
+		{
+            loadGame();
 		} 
-		
 		if (GUI.Button(save, "Save"))
-		{ 
-			GameManager.instance.game.saveCurrentObjects();
-			SerializeObject("gameSave", GameManager.instance.game);
+		{
+            saveGame();
 		} 
 	} 
 
-	public void saveGame(string fileName)
+	public void saveGame()
 	{
-		GameManager.instance.game.saveCurrentObjects ();
-		SerializeObject (fileName, GameManager.instance.game);
+        myGame.saveCurrentObjects();
+		SerializeObject (saveName + ".xml", myGame);
 	}
 
-	private byte[] StringToUTF8ByteArray(string xmlString) 
-	{ 
+	private byte[] StringToUTF8ByteArray(string xmlString)
+    { 
 		UTF8Encoding encoding = new UTF8Encoding(); 
 		byte[] byteArray = encoding.GetBytes(xmlString); 
 		return (byteArray); 
@@ -84,21 +89,20 @@ public class XmlSaveLoad : MonoBehaviour {
 	private void loadLevel()
 	{
 		StreamReader r = File.OpenText(fileLocation + "/" + GameManager.instance.persistentData.fileName); 
-		data = r.ReadToEnd(); 
+		string data = r.ReadToEnd(); 
 		r.Close(); 
 		if (data != "") 
-		{ 
-			// Verifier que l'on recupere bien tout
-			GameManager.instance.game = (Game)DeserializeObject(data); 
-			GameManager.instance.game.createObjects();
-            GameManager.instance.game.restoreManagers();
+		{
+            myGame = (Game)DeserializeObject(data);
+            myGame.createObjects();
+            myGame.restoreManagers();
 		} 
 	}
 
-	public void loadGame(string toLoad)
+	public void loadGame()
 	{
 		// VERIFIER VALIDITE DU NOM ICI
-		GameManager.instance.persistentData.fileName = toLoad;
+		GameManager.instance.persistentData.fileName = saveName;
 		GameManager.instance.persistentData.shouldLoadLevel = true;
 		Application.LoadLevel ("cleanScene");
 	}

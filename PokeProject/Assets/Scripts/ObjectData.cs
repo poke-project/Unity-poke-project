@@ -4,10 +4,9 @@
 public class ObjectData
 {
 	public Vector3	pos;
-	public float	rotX;
-	public float	rotY;
-	public float	rotZ;
+    public Vector3  rot;
 	public string	name;
+    public string prefabName;
 	public string	tag;
 
 	public ObjectData ()
@@ -17,9 +16,8 @@ public class ObjectData
 	public ObjectData(GameObject go)
 	{
 		pos = go.transform.position;
-		rotX = go.transform.rotation.x;
-		rotY = go.transform.rotation.y;
-		rotZ = go.transform.rotation.z;
+        rot = go.transform.eulerAngles;
+        prefabName = go.GetComponent<IMySerializable>().prefabName;
 		name = go.name;
 		tag = go.tag;
 	}

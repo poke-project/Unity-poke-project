@@ -10,24 +10,14 @@ public class Game
 	private static Game	instance;
 
 	[XmlArray(ElementName = "GameObjects")]
-	public List<ObjectData> objects = new List<ObjectData>();
+	public List<ObjectData> objects;
 
-	[XmlIgnore]
-	public Dictionary<string, Object>	dic = new Dictionary<string, Object>();
-	[XmlIgnore]
-	public string	fileName;
+    [XmlIgnore]
+    public Dictionary<string, Object> prefabDic;
+    [XmlIgnore]
+    private Transform objsTransform;
 
-	private Game()
-	{
-		// Store prefabs with name as key
-		Object[] objs = Resources.LoadAll("Prefabs");
-		foreach (Object o in objs)
-		{
-			dic.Add(o.name, o);
-		}
-	}
-
-	public static Game Instance
+    public static Game Instance
 	{
 		get
 		{
@@ -39,31 +29,50 @@ public class Game
 		}
 	}
 
+
+	private Game()
+	{
+        prefabDic = new Dictionary<string, Object>();
+        objects = new List<ObjectData>();
+		// Store prefabs with name as key
+		Object[] objs = Resources.LoadAll("Prefabs");
+		foreach (Object o in objs)
+		{
+			prefabDic.Add(o.name, o);
+		}
+        objsTransform = GameObject.Find("objs").transform;
+	}
+
+	
 	public void	saveCurrentObjects()
 	{
-		// Save all GameObjects in scene before serialization
-		object[] obj = GameObject.FindObjectsOfType(typeof (GameObject));
-		foreach (object o in obj)
+        // Save all GameObjects in scene before serialization
+        objects.Clear();
+        GameObject[] objs = (GameObject[])GameObject.FindObjectsOfType<GameObject>();
+		foreach (GameObject go in objs)
 		{
-			ObjectData objData = new ObjectData((GameObject)o);
-			objects.Add(objData);
+            if (go.GetComponent<IMySerializable>() != null)
+            {
+                ObjectData objData = new ObjectData(go);
+                objects.Add(objData);
+            }
 		}
 	}
 
 	public void createObjects()
 	{
 		// Instantiate and place objects according to xml save
-		Transform	mapTransform = GameObject.Find ("map").transform;
 		foreach (ObjectData objData in objects)
 		{
-            if (dic.ContainsKey(objData.name))
+            if (prefabDic.ContainsKey(objData.prefabName))
             {
                 GameObject go;
                 if (objData.tag != "Player")
                 {
-                    go = (GameObject)GameObject.Instantiate(dic[objData.name]);
-					go.transform.parent = mapTransform;
+                    go = (GameObject)GameObject.Instantiate(prefabDic[objData.prefabName]);
+                    go.transform.parent = objsTransform;
                     go.transform.position = objData.pos;
+                    go.transform.eulerAngles = objData.rot;
                     int index = go.name.LastIndexOf('(');
                     if (index != -1)
                     {
