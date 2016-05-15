@@ -13,7 +13,8 @@ public class PlayerAction : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetKeyDown(InputManager.instance.action_key))
+        if (Input.GetKeyDown(InputManager.instance.action_key) &&
+           !playerMovement.getInMovement())
         {
             GameObject inFront;
             switch (playerMovement.getDirection())

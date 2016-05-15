@@ -150,4 +150,9 @@ public class PlayerMovement : MonoBehaviour {
     {
         return (direction);
     }
+
+    public bool getInMovement()
+    {
+        return (inMovement);
+    }
 }
