@@ -11,6 +11,7 @@ public class InputManager : MonoBehaviour {
     public KeyCode down_key;
     public KeyCode menu_key;
     public KeyCode back_key;
+    public KeyCode action_key;
 
     void Awake()
     {
@@ -23,6 +24,7 @@ public class InputManager : MonoBehaviour {
         right_key = KeyCode.D;
         up_key = KeyCode.W;
         down_key = KeyCode.S;
+        action_key = KeyCode.Space;
 	}
 	
 	void Update () {

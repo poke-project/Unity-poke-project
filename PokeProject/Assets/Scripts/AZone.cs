@@ -61,7 +61,6 @@ abstract public class AZone : MonoBehaviour
                     map[y, x] = null;
             }
         }
-        dispMap();
     }
 
     private void dispMap()
@@ -74,5 +73,12 @@ abstract public class AZone : MonoBehaviour
                 print(disp);
             }
         }
+    }
+    
+    public GameObject getCell(int y, int x)
+    {
+        if (y < 0 || x < 0)
+            return (null);
+        return (map[y, x]);
     }
 }

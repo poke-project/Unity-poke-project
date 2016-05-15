@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerMovement : MonoBehaviour {
 
-    enum eDirection
+    public enum eDirection
     {
         UP,
         DOWN,
@@ -14,6 +14,8 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 targetPosition;
     private Vector3 originPosition;
     private bool inMovement;
+    private bool freeTarget;
+    private bool refresh;
     private eDirection direction;
     private Animator animator;
 
@@ -21,39 +23,69 @@ public class PlayerMovement : MonoBehaviour {
     {
         targetPosition = transform.position;
         inMovement = false;
+        freeTarget = false;
+        refresh = true;
         direction = eDirection.DOWN;
         animator = GetComponent<Animator>();
 	}
 	
 	void Update ()
     {
-        // Get a new movement input
-        if (!inMovement)
+        // Get a new movement input every 0.4 seconds
+        if (!inMovement && refresh)
         {
+            bool isInput = false; 
+            eDirection oldDirection = direction;
             if (Input.GetKey(InputManager.instance.left_key))
             {
                 targetPosition = new Vector2(transform.position.x - 1, transform.position.y);
                 direction = eDirection.LEFT;
+                isInput = true;
             }
             if (Input.GetKey(InputManager.instance.right_key))
             {
                 targetPosition = new Vector2(transform.position.x + 1, transform.position.y);
                 direction = eDirection.RIGHT;
+                isInput = true;
             }
             if (Input.GetKey(InputManager.instance.down_key))
             {
                 targetPosition = new Vector2(transform.position.x, transform.position.y - 1);
                 direction = eDirection.DOWN;
+                isInput = true;
             }
             if (Input.GetKey(InputManager.instance.up_key))
             {
                 targetPosition = new Vector2(transform.position.x, transform.position.y + 1);
                 direction = eDirection.UP;
+                isInput = true;
             }
-            if (targetPosition != transform.position && AZone.instance.isPositionValid(targetPosition))
+            // Process only if new input
+            if (isInput)
             {
-                originPosition = transform.position;
-                inMovement = true;
+                refresh = false;
+                Invoke("refreshInput", 0.4f);
+                if (targetPosition != transform.position)
+                {
+                    if (AZone.instance.isPositionValid(targetPosition))
+                    {
+                        originPosition = transform.position;
+                        freeTarget = true;
+                    }
+                    else
+                    {
+                        if (oldDirection != direction)
+                        {
+                            targetPosition = transform.position;
+                        }
+                        else
+                        {
+                            Invoke("stopMovement", 1);
+                        }
+                        freeTarget = false;
+                    }
+                    inMovement = true;
+                }
             }
         }
         if (inMovement)
@@ -67,6 +99,7 @@ public class PlayerMovement : MonoBehaviour {
             AZone.instance.updatePlayerPos(originPosition, targetPosition);
         }
 	}
+
 
     private void move()
     {
@@ -96,6 +129,25 @@ public class PlayerMovement : MonoBehaviour {
                 break;
         }
         animator.SetBool("isWalking", true);
-        transform.position = Vector2.MoveTowards(transform.position, targetPosition, 2 * Time.deltaTime);
+        if (freeTarget)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, 2 * Time.deltaTime);
+        }
+    }
+
+    private void stopMovement()
+    {
+        inMovement = false;
+        targetPosition = transform.position;
+    }
+
+    private void refreshInput()
+    {
+        refresh = true;
+    }
+
+    public eDirection getDirection()
+    {
+        return (direction);
     }
 }
