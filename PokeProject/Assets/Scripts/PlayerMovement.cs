@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour {
     private bool inMovement;
     private bool freeTarget;
     private bool refresh;
+    private bool needUpdate;
     private eDirection direction;
     private Animator animator;
 
@@ -25,6 +26,7 @@ public class PlayerMovement : MonoBehaviour {
         inMovement = false;
         freeTarget = false;
         refresh = true;
+        needUpdate = true;
         direction = eDirection.DOWN;
         animator = GetComponent<Animator>();
 	}
@@ -65,6 +67,7 @@ public class PlayerMovement : MonoBehaviour {
             {
                 refresh = false;
                 Invoke("refreshInput", 0.4f);
+                needUpdate = true;
                 if (targetPosition != transform.position)
                 {
                     if (AZone.instance.isPositionValid(targetPosition))
@@ -92,11 +95,12 @@ public class PlayerMovement : MonoBehaviour {
         {
             move();
         }
-        if (targetPosition == transform.position)
+        if (targetPosition == transform.position && needUpdate)
         {
             animator.SetBool("isWalking", false);
             inMovement = false;
             AZone.instance.updatePlayerPos(originPosition, targetPosition);
+            needUpdate = false;
         }
 	}
 

@@ -16,6 +16,7 @@ public class Tree : MonoBehaviour, IInteractable {
 
     public void action()
     {
+        // Ask for Slash
         // Animation here
         Destroy(gameObject);
     }
