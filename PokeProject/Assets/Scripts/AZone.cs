@@ -7,14 +7,8 @@ abstract public class AZone : MonoBehaviour
 
     private GameObject saveCell;
     // Width and Height should be set for each zone
-    protected abstract int width
-    {
-        get;
-    }
-    protected abstract int height
-    {
-        get;
-    }
+    protected abstract int width { get; }
+    protected abstract int height { get; }
     // Map is computed on Start
     protected GameObject[,] map;
 
