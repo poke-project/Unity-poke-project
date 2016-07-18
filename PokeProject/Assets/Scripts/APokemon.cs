@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 abstract public class APokemon
 {
-    // Faire une classe "type" avec en methode "fort contre" / "faible contre" / blablabla
     public enum eNature
     {
         bold,
@@ -31,28 +31,10 @@ abstract public class APokemon
         lonely,
         timid
     };
-    public enum eType
-    {
-        normal,
-        fire,
-        water,
-        electric,
-        grass,
-        ice,
-        fighting,
-        poison,
-        ground,
-        flying,
-        psychic,
-        bug,
-        rock,
-        ghost,
-        dragon,
-        dark,
-        steel
-    }
     public enum eAbility
     {
+        overgrow,
+        chlorophyll
         // TODO
     }
     public enum eGrowthRate
@@ -92,6 +74,10 @@ abstract public class APokemon
         public int speed;
     }
 
+    // UI
+    protected abstract string frontSprite { get; }
+    protected abstract string backSprite { get; }
+
     // Base stats, constants
     protected abstract int baseLootExp { get; }
     protected abstract eGrowthRate growthRate { get; }
@@ -105,14 +91,15 @@ abstract public class APokemon
     public abstract int numberEntry { get; }
     public abstract string name { get; }
     public abstract string species { get; }
-    public abstract string height { get; }
-    public abstract string weight { get; }
+    public abstract float height { get; }
+    public abstract float weight { get; }
     public abstract string description { get; }
-    public abstract eType type1 { get; }
-    public abstract eType type2 { get; }
+    public abstract AType type1 { get; }
+    public abstract AType type2 { get; }
     public abstract eAbility[] possibleAbilities { get; }
-    public abstract int catchRate { get; }
+    public abstract float catchRate { get; }
     public abstract bool canEvolve { get; }
+    public abstract float genderRepartition { get; }
     public abstract int evolutionNumber { get; }
 
 
@@ -120,9 +107,15 @@ abstract public class APokemon
     public sStat stats;
     private sStat Evs;
     public int lootExp;
-    public abstract eNature nature { get; }
-    public abstract eAbility ability { get; }
-    public abstract Move[] moves { get; }
+    public eNature nature;
+    public eAbility ability
+    {
+        get
+        {
+            return (possibleAbilities[new System.Random().Next(0, possibleAbilities.Length)]);
+        }
+    }
+    public Move[] moves;
 
     // 0 == male 1 == female
     public int gender;
@@ -284,12 +277,12 @@ abstract public class APokemon
 
     private void setIv()
     {
-        Ivs.hp = Random.Range(0, 32);
-        Ivs.att = Random.Range(0, 32);
-        Ivs.def = Random.Range(0, 32);
-        Ivs.attSpe = Random.Range(0, 32);
-        Ivs.defSpe = Random.Range(0, 32);
-        Ivs.speed = Random.Range(0, 32);
+        Ivs.hp = UnityEngine.Random.Range(0, 32);
+        Ivs.att = UnityEngine.Random.Range(0, 32);
+        Ivs.def = UnityEngine.Random.Range(0, 32);
+        Ivs.attSpe = UnityEngine.Random.Range(0, 32);
+        Ivs.defSpe = UnityEngine.Random.Range(0, 32);
+        Ivs.speed = UnityEngine.Random.Range(0, 32);
     }
 
     private int getBaseStat(eStat statType)
