@@ -6,10 +6,7 @@ public class FightSceneManager : MonoBehaviour {
 
     public static FightSceneManager instance;
 
-    [SerializeField]
     public Dictionary<string, Sprite> numbers;
-
-    public Sprite[] sprites;
 
     void Awake()
     {
@@ -32,7 +29,6 @@ public class FightSceneManager : MonoBehaviour {
     {
         numbers = new Dictionary<string, Sprite>();
         Sprite[] tmp = Resources.LoadAll<Sprite>("Sprites/Numbers");
-        sprites = tmp;
         foreach (Sprite sprite in tmp)
         {
             numbers.Add(sprite.name, sprite);
