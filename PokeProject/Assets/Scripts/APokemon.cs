@@ -55,6 +55,15 @@ abstract public class APokemon
         DEFSPE,
         SPEED
     }
+    public enum eStatus
+    {
+        BURNED,
+        FROZEN,
+        PARALIZED,
+        POISONED,
+        SLEEPING,
+        NORMAL
+    }
     public struct sStat
     {
         public sStat(int hp, int att, int def, int attSpe, int defSpe, int speed)
@@ -73,10 +82,6 @@ abstract public class APokemon
         public int defSpe;
         public int speed;
     }
-
-    // UI
-    protected abstract string frontSprite { get; }
-    protected abstract string backSprite { get; }
 
     // Base stats, constants
     protected abstract int baseLootExp { get; }
@@ -104,6 +109,7 @@ abstract public class APokemon
 
 
     // Statistics (different for each instance)
+    public eStatus status;
     public sStat stats;
     private sStat Evs;
     public int lootExp;
@@ -122,6 +128,12 @@ abstract public class APokemon
     public int exp = 0;
     public int lvl = 1;
     public int expThreshold;
+
+    public APokemon()
+    {
+        stats = baseStats;
+        status = eStatus.NORMAL;
+    }
 
     private void levelUp(int expGain)
     {

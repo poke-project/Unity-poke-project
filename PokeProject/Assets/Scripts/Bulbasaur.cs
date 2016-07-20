@@ -4,9 +4,6 @@ using System;
 
 public class Bulbasaur : APokemon {
 
-    protected override string frontSprite { get { return (""); } }
-    protected override string backSprite { get { return (""); } }
-
     protected override int baseLootExp { get { return (64); }}
     protected override eGrowthRate growthRate
     {

@@ -7,13 +7,18 @@ public class FightPokemonInfoUI : MonoBehaviour {
 
     public bool isPlayer;
 
-    private Image status;
-    private Image barSprite;
+    private Image pokemonImage;
+    private Image statusImage;
+    private Image barImage;
     private Slider hpBar;
     private Image currentFirstDigit;
     private Image currentSecondDigit;
     private Image currentThirdDigit;
     private Dictionary<string, Sprite> numbers;
+    private Dictionary<string, Sprite> status;
+    private Sprite blank;
+    private APokemon pokemon;
+    private Transform frame;
 
     [SerializeField]
     private Sprite lowHp;
@@ -22,60 +27,78 @@ public class FightPokemonInfoUI : MonoBehaviour {
     [SerializeField]
     private Sprite highHp;
 
-    private int currentHp;
     private float internalTime;
 
     void Awake()
     {
-        status = transform.Find("Status").GetComponent<Image>();
-        hpBar = transform.Find("Hp bar").GetComponent<Slider>();
-        barSprite = hpBar.transform.Find("HP").GetComponent<Image>();
-
+        frame = transform.Find("Frame");
+        statusImage = frame.transform.Find("Status").GetComponent<Image>();
+        hpBar = frame.transform.Find("Hp bar").GetComponent<Slider>();
+        barImage = hpBar.transform.Find("HP").GetComponent<Image>();
+        pokemonImage = transform.Find("Sprite").GetComponent<Image>();
         if (isPlayer)
         {
-            Transform currentHpText = transform.Find("Hp text").Find("Current hp");
+            Transform currentHpText = frame.transform.Find("Hp text").Find("Current hp");
             currentFirstDigit = currentHpText.Find("First digit").GetComponent<Image>();
             currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
             currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
         }
-        currentHp = 105;
         internalTime = 0.0f;
     }
 
 	void Start ()
     {
         numbers = new Dictionary<string, Sprite>(FightSceneManager.instance.numbers);
-        hpBar.maxValue = currentHp;
+        status = new Dictionary<string, Sprite>(FightSceneManager.instance.status);
 
         if (isPlayer)
         {
+            pokemon = FightSceneManager.instance.player;
             // Set text for max hp
-            Transform maxHpText = transform.Find("Hp text").Find("Max hp");
+            Transform maxHpText = frame.transform.Find("Hp text").Find("Max hp");
             // modify currentHp for pokemon's max hp
-            setHpText(currentHp, maxHpText.Find("First digit").GetComponent<Image>(), maxHpText.Find("Second digit").GetComponent<Image>(), maxHpText.Find("Third digit").GetComponent<Image>());
+            setHpText(maxHpText.Find("First digit").GetComponent<Image>(), maxHpText.Find("Second digit").GetComponent<Image>(), maxHpText.Find("Third digit").GetComponent<Image>());
+            pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Back/" + pokemon.name);
         }
+        // Check in pokedex if pokemon caught
+        else
+        {
+            pokemon = FightSceneManager.instance.enemy;
+            Sprite caughtSprite = Resources.Load<Sprite>("Sprites/pokemonCaught");
+            if (true)
+            {
+                frame.transform.Find("Caught").GetComponent<Image>().sprite = caughtSprite;
+            }
+            else
+            {
+                frame.transform.Find("Caught").GetComponent<Image>().sprite = blank;
+            }
+            pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.name);
+        }
+        hpBar.maxValue = pokemon.stats.hp;
 	}
 	
 	void Update ()
     {
         // Remove after testing
-        if (currentHp > 0)
+        if (pokemon.stats.hp > 0)
         {
-            if (Input.GetKeyDown(KeyCode.Space) && currentHp >= 10)
+            if (Input.GetKeyDown(KeyCode.Space) && pokemon.stats.hp >= 10)
             {
-                currentHp -= 10;
+                pokemon.stats.hp -= 10;
             }
 
             if (internalTime > 0.1f)
             {
-                currentHp -= 1;
+                pokemon.stats.hp -= 1;
                 internalTime = 0.0f;
             }
 
             updateHpBar();
+            updateStatus();
             if (isPlayer)
             {
-                setHpText(currentHp, currentFirstDigit, currentSecondDigit, currentThirdDigit);
+                setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit);
             }
             internalTime += Time.deltaTime;
         }
@@ -88,25 +111,84 @@ public class FightPokemonInfoUI : MonoBehaviour {
 
     private void updateHpBar()
     {
-        hpBar.value = hpBar.maxValue - currentHp;
-        if (currentHp < (hpBar.maxValue / 5))
+        hpBar.value = hpBar.maxValue - pokemon.stats.hp;
+        if (pokemon.stats.hp < (hpBar.maxValue / 5))
         {
-            barSprite.sprite = lowHp;
+            barImage.sprite = lowHp;
         }
-        else if (currentHp < (hpBar.maxValue / 2))
+        else if (pokemon.stats.hp < (hpBar.maxValue / 2))
         {
-            barSprite.sprite = mediumHp;
+            barImage.sprite = mediumHp;
         }
         else
         {
-            barSprite.sprite = highHp;
+            barImage.sprite = highHp;
         }
     }
 
-    private void setHpText(int hp, Image first, Image second, Image third)
+    private void updateStatus()
     {
-        int thirdDigit = getDigit(hp, 3);
-        int secondDigit = getDigit(hp, 2);
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            pokemon.status = APokemon.eStatus.BURNED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            pokemon.status = APokemon.eStatus.FROZEN;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            pokemon.status = APokemon.eStatus.PARALIZED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            pokemon.status = APokemon.eStatus.POISONED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            pokemon.status = APokemon.eStatus.SLEEPING;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            pokemon.status = APokemon.eStatus.NORMAL;
+        }
+
+        switch (pokemon.status)
+        {
+            case APokemon.eStatus.BURNED:
+                statusImage.sprite = status["burned"]; 
+                break;
+
+            case APokemon.eStatus.FROZEN:
+                statusImage.sprite = status["frozen"]; 
+                break;
+
+            case APokemon.eStatus.PARALIZED:
+                statusImage.sprite = status["paralized"]; 
+                break;
+
+            case APokemon.eStatus.POISONED:
+                statusImage.sprite = status["poisoned"]; 
+                break;
+
+            case APokemon.eStatus.SLEEPING:
+                statusImage.sprite = status["sleeping"]; 
+                break;
+
+            case APokemon.eStatus.NORMAL:
+                statusImage.sprite = blank;
+                break;
+
+            default:
+                Debug.Log("Should not be here");
+                break;
+        }
+    }
+
+    private void setHpText(Image first, Image second, Image third)
+    {
+        int thirdDigit = getDigit(pokemon.stats.hp, 3);
+        int secondDigit = getDigit(pokemon.stats.hp, 2);
         if (thirdDigit == 0)
         {
             third.enabled = false;
@@ -127,6 +209,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
             third.sprite = numbers[thirdDigit.ToString()];
             second.sprite = numbers[secondDigit.ToString()];
         }
-        first.sprite = numbers[getDigit(hp, 1).ToString()];
+        first.sprite = numbers[getDigit(pokemon.stats.hp, 1).ToString()];
     }
 }
