@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class FightPokemonInfoUI : MonoBehaviour {
 
+    public bool isPlayer;
+
     private Image status;
     private Image barSprite;
     private Slider hpBar;
@@ -29,11 +31,13 @@ public class FightPokemonInfoUI : MonoBehaviour {
         hpBar = transform.Find("Hp bar").GetComponent<Slider>();
         barSprite = hpBar.transform.Find("HP").GetComponent<Image>();
 
-        Transform currentHpText = transform.Find("Hp text").Find("Current hp");
-        currentFirstDigit = currentHpText.Find("First digit").GetComponent<Image>();
-        currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
-        currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
-
+        if (isPlayer)
+        {
+            Transform currentHpText = transform.Find("Hp text").Find("Current hp");
+            currentFirstDigit = currentHpText.Find("First digit").GetComponent<Image>();
+            currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
+            currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
+        }
         currentHp = 105;
         internalTime = 0.0f;
     }
@@ -43,10 +47,13 @@ public class FightPokemonInfoUI : MonoBehaviour {
         numbers = new Dictionary<string, Sprite>(FightSceneManager.instance.numbers);
         hpBar.maxValue = currentHp;
 
-        // Set text for max hp
-        Transform maxHpText = transform.Find("Hp text").Find("Max hp");
-        // modify currentHp for pokemon's max hp
-        setHpText(currentHp, maxHpText.Find("First digit").GetComponent<Image>(), maxHpText.Find("Second digit").GetComponent<Image>(), maxHpText.Find("Third digit").GetComponent<Image>());
+        if (isPlayer)
+        {
+            // Set text for max hp
+            Transform maxHpText = transform.Find("Hp text").Find("Max hp");
+            // modify currentHp for pokemon's max hp
+            setHpText(currentHp, maxHpText.Find("First digit").GetComponent<Image>(), maxHpText.Find("Second digit").GetComponent<Image>(), maxHpText.Find("Third digit").GetComponent<Image>());
+        }
 	}
 	
 	void Update ()
@@ -66,7 +73,10 @@ public class FightPokemonInfoUI : MonoBehaviour {
             }
 
             updateHpBar();
-            setHpText(currentHp, currentFirstDigit, currentSecondDigit, currentThirdDigit);
+            if (isPlayer)
+            {
+                setHpText(currentHp, currentFirstDigit, currentSecondDigit, currentThirdDigit);
+            }
             internalTime += Time.deltaTime;
         }
 	}
