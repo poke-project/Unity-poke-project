@@ -121,7 +121,7 @@ abstract public class APokemon
             return (possibleAbilities[new System.Random().Next(0, possibleAbilities.Length)]);
         }
     }
-    public Move[] moves;
+    public abstract Move[] moves { get; }
 
     // 0 == male 1 == female
     public int gender;
