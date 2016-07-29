@@ -26,7 +26,7 @@ public class FightSceneManager : MonoBehaviour {
 
    // [HideInInspector]
     public int currentSelection;
-    [HideInInspector]
+   // [HideInInspector]
     public eMode currentMode;
 
     void Awake()
@@ -62,13 +62,18 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    print(player.moves[currentSelection - 1].getMoveName());
+                    player.moves[currentSelection - 1].use();
                     break;
 
                 default:
                     print("Should not be here");
                     break;
             }
+        }
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            currentSelection = 1;
+            currentMode = eMode.MENU;
         }
 	}
 
@@ -92,6 +97,7 @@ public class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.RUN:
+                Application.LoadLevel("ImplementBasicAction");
                 print("RUN");
                 break;
 

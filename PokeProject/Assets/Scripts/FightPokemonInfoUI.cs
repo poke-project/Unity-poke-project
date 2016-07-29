@@ -50,7 +50,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
     {
         numbers = new Dictionary<string, Sprite>(FightSceneManager.instance.numbers);
         status = new Dictionary<string, Sprite>(FightSceneManager.instance.status);
-
+        blank = FightSceneManager.instance.blank;
         if (isPlayer)
         {
             pokemon = FightSceneManager.instance.player;
@@ -83,11 +83,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
         // Remove after testing
         if (pokemon.stats.hp > 0)
         {
-            if (Input.GetKeyDown(KeyCode.Space) && pokemon.stats.hp >= 10)
-            {
-                pokemon.stats.hp -= 10;
-            }
-
             if (internalTime > 0.1f)
             {
                 pokemon.stats.hp -= 1;
@@ -130,52 +125,52 @@ public class FightPokemonInfoUI : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            pokemon.status = APokemon.eStatus.BURNED;
+            pokemon.status = eStatus.BURNED;
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            pokemon.status = APokemon.eStatus.FROZEN;
+            pokemon.status = eStatus.FROZEN;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            pokemon.status = APokemon.eStatus.PARALIZED;
+            pokemon.status = eStatus.PARALIZED;
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            pokemon.status = APokemon.eStatus.POISONED;
+            pokemon.status = eStatus.POISONED;
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            pokemon.status = APokemon.eStatus.SLEEPING;
+            pokemon.status = eStatus.SLEEPING;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            pokemon.status = APokemon.eStatus.NORMAL;
+            pokemon.status = eStatus.NORMAL;
         }
 
         switch (pokemon.status)
         {
-            case APokemon.eStatus.BURNED:
+            case eStatus.BURNED:
                 statusImage.sprite = status["burned"]; 
                 break;
 
-            case APokemon.eStatus.FROZEN:
+            case eStatus.FROZEN:
                 statusImage.sprite = status["frozen"]; 
                 break;
 
-            case APokemon.eStatus.PARALIZED:
+            case eStatus.PARALIZED:
                 statusImage.sprite = status["paralized"]; 
                 break;
 
-            case APokemon.eStatus.POISONED:
+            case eStatus.POISONED:
                 statusImage.sprite = status["poisoned"]; 
                 break;
 
-            case APokemon.eStatus.SLEEPING:
+            case eStatus.SLEEPING:
                 statusImage.sprite = status["sleeping"]; 
                 break;
 
-            case APokemon.eStatus.NORMAL:
+            case eStatus.NORMAL:
                 statusImage.sprite = blank;
                 break;
 

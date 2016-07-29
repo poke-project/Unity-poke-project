@@ -118,14 +118,47 @@ public class Bulbasaur : APokemon {
         }
     }
 
-    public override Move[] moves
+    public override Move move1
     {
         get
         {
-            Move move1 = new Move("Tackle", 10);
-            Move move2 = new Move("Growl", 5);
-            Move move3 = new Move("Flamethrower", 25);
-            return (new Move[4] { move1, move2, move3, null });
+            return (new Move("Tackle", 10));
+        }
+        set
+        {
+        }
+    }
+
+    public override Move move2
+    {
+        get
+        {
+            return (new Move("Growl", 5));
+        }
+        set
+        {
+        }
+    }
+
+    public override Move move3
+    {
+        get
+        {
+            return (new Move("Flamethrower", 25));
+        }
+        set
+        {
+        }
+    }
+
+    public override Move move4
+    {
+        get
+        {
+            return (null);
+        }
+        set
+        {
         }
     }
 }

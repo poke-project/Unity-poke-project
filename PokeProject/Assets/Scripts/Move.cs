@@ -3,29 +3,36 @@ using System.Collections;
 
 public class Move
 {
-    private string moveName;
-    private int maxPP;
-    private int currentPP;
+    public string MoveName { get; private set; }
+    public int MaxPP { get; private set; }
+    public int CurrentPP { get; private set; }
 
+    public sStat EnemyEffect { get; private set; }
+    public sStat SelfEffect { get; private set; }
+    public eStatus enemyStatus { get; private set; }
+    public eStatus selfStatus { get; private set; }
+    public AType type;
+
+    // Adapt constructor
     public Move(string name, int pp)
     {
-        moveName = name;
-        maxPP = pp;
-        currentPP = maxPP;
+        MoveName = name;
+        MaxPP = pp;
+        CurrentPP = MaxPP;
     }
 
-    public string getMoveName()
+    public void use()
     {
-        return (moveName);
-    }
-
-    public int getCurrentPP()
-    {
-        return (currentPP);
-    }
-
-    public int getMaxPP()
-    {
-        return (maxPP);
+        if (CurrentPP > 0)
+        {
+            Debug.Log("ici");
+            CurrentPP--;
+        Debug.Log(CurrentPP);
+        }
+        else
+        {
+            Debug.Log("not enough pp");
+        }
+        Debug.Log(MoveName);
     }
 }

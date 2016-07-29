@@ -10,7 +10,7 @@ public class MovesUI : MonoBehaviour {
     private Text type;
     private Transform moveDescription;
 
-    private int lastSelected;
+    private int selected;
     private APokemon player;
 
     void Awake()
@@ -20,7 +20,7 @@ public class MovesUI : MonoBehaviour {
         currentPP = moveDescription.Find("Current PP").GetComponent<Text>();
         maxPP = moveDescription.Find("Max PP").GetComponent<Text>();
         type = moveDescription.Find("Type").GetComponent<Text>();
-        lastSelected = -1;
+        selected = -1;
     }
 
 	// Use this for initialization
@@ -31,7 +31,7 @@ public class MovesUI : MonoBehaviour {
         {
             if (player.moves[i] != null)
             {
-                movesName[i].text = player.moves[i].getMoveName();
+                movesName[i].text = player.moves[i].MoveName;
             }
             else
             {
@@ -43,11 +43,8 @@ public class MovesUI : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-	    if (lastSelected != FightSceneManager.instance.currentSelection)
-        {
-            lastSelected = FightSceneManager.instance.currentSelection;
-            currentPP.text = player.moves[lastSelected - 1].getCurrentPP().ToString();
-            maxPP.text = player.moves[lastSelected - 1].getMaxPP().ToString();
-        }   
+        selected = FightSceneManager.instance.currentSelection;
+        currentPP.text = player.moves[selected - 1].CurrentPP.ToString();
+        maxPP.text = player.moves[selected - 1].MaxPP.ToString();
 	}
 }

@@ -2,6 +2,45 @@
 using System.Collections;
 using System;
 
+public enum eStat
+{
+    HP,
+    ATT,
+    DEF,
+    ATTSPE,
+    DEFSPE,
+    SPEED
+}
+
+public enum eStatus
+{
+    BURNED,
+    FROZEN,
+    PARALIZED,
+    POISONED,
+    SLEEPING,
+    NORMAL
+}
+
+public struct sStat
+{
+    public sStat(int hp, int att, int def, int attSpe, int defSpe, int speed)
+    {
+        this.hp = hp;
+        this.att = att;
+        this.def = def;
+        this.attSpe = attSpe;
+        this.defSpe = defSpe;
+        this.speed = speed;
+    }
+    public int hp;
+    public int att;
+    public int def;
+    public int attSpe;
+    public int defSpe;
+    public int speed;
+}
+
 abstract public class APokemon
 {
     public enum eNature
@@ -46,42 +85,6 @@ abstract public class APokemon
         slow,
         fluctuating
     }
-    public enum eStat
-    {
-        HP,
-        ATT,
-        DEF,
-        ATTSPE,
-        DEFSPE,
-        SPEED
-    }
-    public enum eStatus
-    {
-        BURNED,
-        FROZEN,
-        PARALIZED,
-        POISONED,
-        SLEEPING,
-        NORMAL
-    }
-    public struct sStat
-    {
-        public sStat(int hp, int att, int def, int attSpe, int defSpe, int speed)
-        {
-            this.hp = hp;
-            this.att = att;
-            this.def = def;
-            this.attSpe = attSpe;
-            this.defSpe = defSpe;
-            this.speed = speed;
-        }
-        public int hp;
-        public int att;
-        public int def;
-        public int attSpe;
-        public int defSpe;
-        public int speed;
-    }
 
     // Base stats, constants
     protected abstract int baseLootExp { get; }
@@ -121,7 +124,11 @@ abstract public class APokemon
             return (possibleAbilities[new System.Random().Next(0, possibleAbilities.Length)]);
         }
     }
-    public abstract Move[] moves { get; }
+    public Move[] moves;
+    public abstract Move move1 { get; set; }
+    public abstract Move move2 { get; set; }
+    public abstract Move move3 { get; set; }
+    public abstract Move move4 { get; set; }
 
     // 0 == male 1 == female
     public int gender;
@@ -133,6 +140,7 @@ abstract public class APokemon
     {
         stats = baseStats;
         status = eStatus.NORMAL;
+        moves = new Move[4] { move1, move2, move3, move4 };
     }
 
     private void levelUp(int expGain)

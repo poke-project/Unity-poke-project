@@ -4,11 +4,8 @@ using System.Collections;
 using UnityEngine.Events;
 using System.Collections.Generic;
 
-
 public class MenuUI : MonoBehaviour {
 
-    private GameObject actionBox;
-    private GameObject fightBox;
     private GameObject[] boxes;
     private eMode lastMode;
 
@@ -36,9 +33,12 @@ public class MenuUI : MonoBehaviour {
         // method here when needed
         if (FightSceneManager.instance.currentMode != lastMode)
         {
-            boxes[(int)lastMode].SetActive(false);
-            lastMode = FightSceneManager.instance.currentMode;
-            boxes[(int)lastMode + 1].SetActive(true);
+            if ((int)FightSceneManager.instance.currentMode < 4)
+            {
+                boxes[(int)lastMode + 1].SetActive(false);
+                lastMode = FightSceneManager.instance.currentMode;
+                boxes[(int)lastMode + 1].SetActive(true);
+            }
         }
-	}
+    }
 }
