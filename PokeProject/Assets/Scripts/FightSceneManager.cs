@@ -1,17 +1,19 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Collections;
 
+public enum eMode
+{
+    MENU = 0,
+    FIGHT,
+    BAG,
+    POKEMON,
+    RUN
+}
+
 public class FightSceneManager : MonoBehaviour {
 
-    private enum eMode
-    {
-        MENU = 0,
-        FIGHT,
-        BAG,
-        POKEMON,
-        RUN
-    }
 
     public static FightSceneManager instance;
 
@@ -19,10 +21,13 @@ public class FightSceneManager : MonoBehaviour {
     public APokemon enemy;
     public Dictionary<string, Sprite> numbers;
     public Dictionary<string, Sprite> status;
+    [HideInInspector]
     public Sprite blank;
 
+   // [HideInInspector]
     public int currentSelection;
-    private eMode currentMode;
+    [HideInInspector]
+    public eMode currentMode;
 
     void Awake()
     {
@@ -36,8 +41,8 @@ public class FightSceneManager : MonoBehaviour {
         player = new Bulbasaur();
         enemy = new Bulbasaur();
 
-        currentSelection = 0;
-        currentMode = eMode.FIGHT;
+        currentSelection = 1;
+        currentMode = eMode.MENU;
     }
 
 	// Use this for initialization
@@ -57,7 +62,7 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    print(player.moves[currentSelection].getMoveName());
+                    print(player.moves[currentSelection - 1].getMoveName());
                     break;
 
                 default:
@@ -99,26 +104,29 @@ public class FightSceneManager : MonoBehaviour {
 
     private void updateSelection()
     {
-        int newSelection = 0;
+        int nextSelection = currentSelection;
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            newSelection = -2;
+            nextSelection -= 2;
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            newSelection = 2;
+            nextSelection += 2;
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            newSelection = -1;
+            nextSelection -= 1;
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            newSelection = 1;
+            nextSelection += 1;
         }
-        if ((newSelection + currentSelection) >= 0 && (newSelection + currentSelection < 4))
+        if (nextSelection > 0 && nextSelection <= 4)
         {
-            currentSelection += newSelection;
+            if (!(currentMode == eMode.FIGHT && player.moves[nextSelection - 1] == null))
+            {
+                currentSelection = nextSelection;
+            }
         }
     }
 

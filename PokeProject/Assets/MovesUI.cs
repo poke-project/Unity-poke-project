@@ -46,8 +46,8 @@ public class MovesUI : MonoBehaviour {
 	    if (lastSelected != FightSceneManager.instance.currentSelection)
         {
             lastSelected = FightSceneManager.instance.currentSelection;
-            currentPP.text = player.moves[lastSelected].getCurrentPP().ToString();
-            maxPP.text = player.moves[lastSelected].getMaxPP().ToString();
+            currentPP.text = player.moves[lastSelected - 1].getCurrentPP().ToString();
+            maxPP.text = player.moves[lastSelected - 1].getMaxPP().ToString();
         }   
 	}
 }

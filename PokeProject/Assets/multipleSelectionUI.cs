@@ -24,11 +24,11 @@ public class multipleSelectionUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (lastSelected != FightSceneManager.instance.currentSelection + 1)
+        if (lastSelected != FightSceneManager.instance.currentSelection)
         {
-            arrowHolders[FightSceneManager.instance.currentSelection + 1].sprite = arrow;
+            arrowHolders[FightSceneManager.instance.currentSelection].sprite = arrow;
             arrowHolders[lastSelected].sprite = blank;
-            lastSelected = FightSceneManager.instance.currentSelection + 1;
+            lastSelected = FightSceneManager.instance.currentSelection;
         }
 	}
 }
