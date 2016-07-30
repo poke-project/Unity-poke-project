@@ -12,6 +12,8 @@ public class Move
     public eStatus enemyStatus { get; private set; }
     public eStatus selfStatus { get; private set; }
     public AType type;
+    // 8 for certains moves else 1
+    public int criticalChanceModifier { get; private set; }
 
     // Adapt constructor
     public Move(string name, int pp)
@@ -25,9 +27,7 @@ public class Move
     {
         if (CurrentPP > 0)
         {
-            Debug.Log("ici");
             CurrentPP--;
-        Debug.Log(CurrentPP);
         }
         else
         {

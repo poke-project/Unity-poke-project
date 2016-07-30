@@ -27,6 +27,7 @@ public abstract class AType
     abstract protected bool noEffect(AType other);
     abstract protected bool isNotVeryEffective(AType other);
     abstract protected bool isSuperEffective(AType other);
+    abstract public bool isPhysical();
 }
 
 public class Normal : AType
@@ -59,6 +60,11 @@ public class Normal : AType
     override protected bool isSuperEffective(AType other)
     {
         return (false);
+    }
+
+    public override bool isPhysical()
+    {
+        return (true);
     }
 }
 
@@ -99,6 +105,10 @@ public class Fire : AType
         }
     }
 
+    public override bool isPhysical()
+    {
+        return (false);
+    }
 }
 
 public class Water : AType
@@ -135,7 +145,13 @@ public class Water : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (false);
+    }
 }
+
 public class Elec : AType
 {
     override protected bool noEffect(AType other)
@@ -175,6 +191,11 @@ public class Elec : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (false);
     }
 }
 
@@ -216,6 +237,11 @@ public class Grass : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (false);
+    }
 }
 
 public class Ice : AType
@@ -253,6 +279,11 @@ public class Ice : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (false);
     }
 }
 
@@ -300,10 +331,15 @@ public class Fighting : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (true);
+    }
 }
 
 
-    public class Poison : AType
+public class Poison : AType
 {
     override protected bool noEffect(AType other)
     {
@@ -342,6 +378,11 @@ public class Fighting : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (true);
     }
 }
 
@@ -387,6 +428,11 @@ public class Ground : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (true);
+    }
 }
 
 public class Fly : AType
@@ -422,6 +468,11 @@ public class Fly : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (true);
     }
 }
 
@@ -464,6 +515,11 @@ public class Psy : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (false);
+    }
 }
 
 public class Bug : AType
@@ -503,6 +559,11 @@ public class Bug : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (true);
+    }
 }
 
 public class Rock : AType
@@ -539,6 +600,11 @@ public class Rock : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (true);
     }
 }
 
@@ -581,6 +647,11 @@ public class Ghost : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (true);
+    }
 }
 
 public class Dragon : AType
@@ -612,6 +683,11 @@ public class Dragon : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (false);
     }
 }
 
@@ -648,6 +724,11 @@ public class Darkness : AType
             return (false);
         }
     }
+
+    public override bool isPhysical()
+    {
+        return (false);
+    }
 }
 
 public class Steel : AType
@@ -683,5 +764,10 @@ public class Steel : AType
         {
             return (false);
         }
+    }
+
+    public override bool isPhysical()
+    {
+        return (true);
     }
 }

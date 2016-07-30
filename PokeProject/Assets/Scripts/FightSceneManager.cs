@@ -62,6 +62,7 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
+                    moveProcess();
                     player.moves[currentSelection - 1].use();
                     break;
 
@@ -76,6 +77,74 @@ public class FightSceneManager : MonoBehaviour {
             currentMode = eMode.MENU;
         }
 	}
+
+    private void moveProcess()
+    {
+        Move usedMove = player.moves[currentSelection - 1];
+        usedMove.use();
+
+        // same type attack bonus : 1.5 if same type as user
+        float stab;
+        // critical hit bonus : 2 if critical
+        float critical;
+        // items / abilities bonuses
+        float other;
+        // random modifier from 0.85 to 1
+        float randModifier;
+        // dmgs modifier from previous bonuses
+        float modifier;
+        // user attack or attackSpe stat
+        float userAttack;
+        // receiver defense or defenseSpe stat
+        float receiverDefense;
+        // final dmgs
+        int dmgs;
+        //
+        // CHECK IF COPY IS OK
+        //
+        sStat turnUserStat = player.stats;
+        sStat turnReceiverStat = enemy.stats;
+
+        if (usedMove.type.GetType() == player.type1.GetType() || usedMove.type.GetType() == player.type2.GetType())
+        {
+            stab = 1.5f;
+        }
+        else
+        {
+            stab = 1f;
+        }
+
+        // Could be better with shuffle bag
+        int probability = (int)(turnUserStat.speed / (512f / usedMove.criticalChanceModifier));
+        // Critical hit should ignore modifier from burn and stat modifiers
+        if (Random.Range(0, 100) < probability)
+        {
+            critical = (2 * player.lvl + 5) / (player.lvl + 5);
+        }
+        else
+        {
+            critical = 1f;
+        }
+        if (player.status == eStatus.BURNED)
+        {
+            turnUserStat.att /= 2;
+        }
+        // TODO
+        other = 1f;
+        randModifier = Random.Range(0.85f, 1f);
+        modifier = stab * critical * other * randModifier;
+        if (usedMove.type.isPhysical())
+        {
+            userAttack = turnUserStat.att;
+            receiverDefense = turnReceiverStat.def;
+        }
+        else
+        {
+            userAttack = turnUserStat.attSpe;
+            receiverDefense = turnReceiverStat.defSpe;
+        }
+        dmgs = (int)(((((2 * player.lvl) + 10) / 250) * (userAttack / receiverDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
+    }
 
     private void menuActions()
     {
