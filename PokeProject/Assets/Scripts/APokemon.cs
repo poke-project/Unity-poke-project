@@ -33,6 +33,10 @@ public struct sStat
         this.defSpe = defSpe;
         this.speed = speed;
     }
+    public override string ToString()
+    {
+        return ("hp : " + hp.ToString() +  " att : " + att.ToString() +  " def : " + def.ToString() +  " attSpe : " + attSpe.ToString() + " defSpe : " + defSpe.ToString() + " speed : " + speed.ToString());
+    }
     public int hp;
     public int att;
     public int def;
@@ -116,7 +120,6 @@ abstract public class APokemon
     public sStat stats;
     private sStat Evs;
     public int lootExp;
-    public eNature nature;
     public eAbility ability
     {
         get
@@ -133,14 +136,21 @@ abstract public class APokemon
     // 0 == male 1 == female
     public int gender;
     public int exp = 0;
-    public int lvl = 1;
+    public int lvl = 100;
     public int expThreshold;
 
     public APokemon()
     {
         stats = baseStats;
+        updateStat(ref stats.hp, eStat.HP);
+        updateStat(ref stats.att, eStat.ATT);
+        updateStat(ref stats.def, eStat.DEF);
+        updateStat(ref stats.attSpe, eStat.ATTSPE);
+        updateStat(ref stats.defSpe, eStat.DEFSPE);
+        updateStat(ref stats.speed, eStat.SPEED);
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
+        Debug.Log(stats.ToString());
     }
 
     private void levelUp(int expGain)
@@ -228,12 +238,10 @@ abstract public class APokemon
         int baseStat = getBaseStat(statType);
         int iv = getIvForStat(statType);
         int ep = getEvForStat(statType) / 4;
-        // TODO
-        int natureModifier = 1;
 
         if (statType != eStat.HP)
         {
-            stat = (((((2 * baseStat) + iv + ep) * lvl) / 100) + 5) * natureModifier;
+            stat = (((((2 * baseStat) + iv + ep) * lvl) / 100) + 5);
         }
         else
         {

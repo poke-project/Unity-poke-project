@@ -63,7 +63,6 @@ public class FightSceneManager : MonoBehaviour {
 
                 case eMode.FIGHT:
                     moveProcess();
-                    player.moves[currentSelection - 1].use();
                     break;
 
                 default:
@@ -80,11 +79,15 @@ public class FightSceneManager : MonoBehaviour {
 
     private void moveProcess()
     {
+        // IMPLEMENT ACCURACY AND EVASION
+        //
         Move usedMove = player.moves[currentSelection - 1];
         usedMove.use();
 
         // same type attack bonus : 1.5 if same type as user
         float stab;
+        // type effectiveness
+        float typeModifier;
         // critical hit bonus : 2 if critical
         float critical;
         // items / abilities bonuses
@@ -105,7 +108,7 @@ public class FightSceneManager : MonoBehaviour {
         sStat turnUserStat = player.stats;
         sStat turnReceiverStat = enemy.stats;
 
-        if (usedMove.type.GetType() == player.type1.GetType() || usedMove.type.GetType() == player.type2.GetType())
+        if (usedMove.Type.GetType() == player.type1.GetType() || usedMove.Type.GetType() == player.type2.GetType())
         {
             stab = 1.5f;
         }
@@ -113,7 +116,7 @@ public class FightSceneManager : MonoBehaviour {
         {
             stab = 1f;
         }
-
+        typeModifier = usedMove.Type.dmgsModifier(enemy.type1) * usedMove.Type.dmgsModifier(enemy.type2);
         // Could be better with shuffle bag
         int probability = (int)(turnUserStat.speed / (512f / usedMove.criticalChanceModifier));
         // Critical hit should ignore modifier from burn and stat modifiers
@@ -129,11 +132,13 @@ public class FightSceneManager : MonoBehaviour {
         {
             turnUserStat.att /= 2;
         }
+
         // TODO
         other = 1f;
+
         randModifier = Random.Range(0.85f, 1f);
-        modifier = stab * critical * other * randModifier;
-        if (usedMove.type.isPhysical())
+        modifier = stab * typeModifier * critical * other * randModifier;
+        if (usedMove.Type.isPhysical())
         {
             userAttack = turnUserStat.att;
             receiverDefense = turnReceiverStat.def;
@@ -143,7 +148,8 @@ public class FightSceneManager : MonoBehaviour {
             userAttack = turnUserStat.attSpe;
             receiverDefense = turnReceiverStat.defSpe;
         }
-        dmgs = (int)(((((2 * player.lvl) + 10) / 250) * (userAttack / receiverDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
+        dmgs = (int)(((((2 * (float)player.lvl) + 10) / 250) * (userAttack / receiverDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
+        print(dmgs);
     }
 
     private void menuActions()

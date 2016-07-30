@@ -7,7 +7,11 @@ public abstract class AType
 {
     public float dmgsModifier(AType other)
     {
-        if (noEffect(other))
+        if (other == null)
+        {
+            return (1);
+        }
+        else if (noEffect(other))
         {
             return (0);
         }
