@@ -133,7 +133,7 @@ abstract public class APokemon
     public abstract Move move3 { get; set; }
     public abstract Move move4 { get; set; }
 
-    // 0 == male 1 == female
+    // 0 == female 1 == genderless 2 == male
     public int gender;
     public int exp = 0;
     public int lvl = 100;
@@ -153,6 +153,7 @@ abstract public class APokemon
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
         Debug.Log(stats.ToString());
+        gender = 2;
     }
 
     private void levelUp(int expGain)

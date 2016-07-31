@@ -14,11 +14,13 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private Image currentFirstDigit;
     private Image currentSecondDigit;
     private Image currentThirdDigit;
+    private Text pokemonName;
     private Dictionary<string, Sprite> numbers;
     private Dictionary<string, Sprite> status;
     private Sprite blank;
     private APokemon pokemon;
     private Transform frame;
+    private Sprite[] resourcesFrame;
 
     [SerializeField]
     private Sprite lowHp;
@@ -35,12 +37,18 @@ public class FightPokemonInfoUI : MonoBehaviour {
         hpBar = frame.transform.Find("Hp bar").GetComponent<Slider>();
         barImage = hpBar.transform.Find("HP").GetComponent<Image>();
         pokemonImage = transform.Find("Sprite").GetComponent<Image>();
+        pokemonName = frame.transform.Find("Name").GetComponent<Text>();
         if (isPlayer)
         {
             Transform currentHpText = frame.transform.Find("Hp text").Find("Current hp");
             currentFirstDigit = currentHpText.Find("First digit").GetComponent<Image>();
             currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
             currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
+            resourcesFrame = Resources.LoadAll<Sprite>("Sprites/Combat Scene/Player");
+        }
+        else
+        {
+            resourcesFrame = Resources.LoadAll<Sprite>("Sprites/Combat Scene/Enemy");
         }
     }
 
@@ -74,6 +82,8 @@ public class FightPokemonInfoUI : MonoBehaviour {
             pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.name);
         }
         hpBar.maxValue = pokemon.stats.hp;
+        updateFrame();
+        updateName();
 	}
 	
 	void Update ()
@@ -85,6 +95,16 @@ public class FightPokemonInfoUI : MonoBehaviour {
             setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit);
         }
 	}
+    
+    private void updateFrame()
+    {
+        frame.GetComponent<Image>().sprite = resourcesFrame[pokemon.gender];
+    }
+
+    private void updateName()
+    {
+        pokemonName.text = pokemon.name;
+    }
 
     private int getDigit(int number, int digit)
     {
@@ -110,31 +130,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
 
     private void updateStatus()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            pokemon.status = eStatus.BURNED;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            pokemon.status = eStatus.FROZEN;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            pokemon.status = eStatus.PARALIZED;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            pokemon.status = eStatus.POISONED;
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            pokemon.status = eStatus.SLEEPING;
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            pokemon.status = eStatus.NORMAL;
-        }
-
         switch (pokemon.status)
         {
             case eStatus.BURNED:

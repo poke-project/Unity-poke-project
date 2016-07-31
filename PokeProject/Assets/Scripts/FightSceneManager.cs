@@ -57,6 +57,8 @@ public class FightSceneManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         updateSelection();
+        controlStatus(player);
+        controlStatus(enemy);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             switch (currentMode)
@@ -88,6 +90,34 @@ public class FightSceneManager : MonoBehaviour {
         internalTime += Time.deltaTime;
 	}
 
+    // Remove after test
+    private void controlStatus(APokemon pokemon)
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            pokemon.status = eStatus.BURNED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            pokemon.status = eStatus.FROZEN;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            pokemon.status = eStatus.PARALIZED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            pokemon.status = eStatus.POISONED;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            pokemon.status = eStatus.SLEEPING;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            pokemon.status = eStatus.NORMAL;
+        }
+    }
 
     private void moveProcess(APokemon user, APokemon target)
     {
