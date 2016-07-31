@@ -13,10 +13,11 @@ public class Move
     public eStatus SelfStatus { get; private set; }
     public AType Type;
     // 8 for certains moves else 1
-    public float criticalChanceModifier { get; private set; }
+    public float CriticalChanceModifier { get; private set; }
+    public float Accuracy { get; private set; }
 
     // Adapt constructor
-    public Move(string name, int pp, sStat enemyEffect, sStat selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance)
+    public Move(string name, int pp, sStat enemyEffect, sStat selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance, float accuracy)
     {
         MoveName = name;
         MaxPP = pp;
@@ -26,7 +27,8 @@ public class Move
         EnemyStatus = enemyStatus;
         SelfStatus = selfStatus;
         Type = type;
-        criticalChanceModifier = critChance;
+        CriticalChanceModifier = critChance;
+        Accuracy = accuracy;
     }
 
     public void use()

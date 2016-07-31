@@ -46,5 +46,6 @@ public class MovesUI : MonoBehaviour {
         selected = FightSceneManager.instance.currentSelection;
         currentPP.text = player.moves[selected - 1].CurrentPP.ToString();
         maxPP.text = player.moves[selected - 1].MaxPP.ToString();
+        type.text = player.moves[selected - 1].Type.ToString();
 	}
 }

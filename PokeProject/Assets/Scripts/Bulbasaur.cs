@@ -124,7 +124,7 @@ public class Bulbasaur : APokemon {
         {
             sStat enemyEffect = new sStat(35, 0, 0, 0, 0, 0);
             sStat selfEffect = new sStat(0, 0, 0, 0, 0, 0);
-            return (new Move("Tackle", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1));
+            return (new Move("Tackle", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1, 100));
         }
         set
         {

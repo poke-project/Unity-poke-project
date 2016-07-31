@@ -138,6 +138,8 @@ abstract public class APokemon
     public int exp = 0;
     public int lvl = 100;
     public int expThreshold;
+    public float evasionRate = 100f;
+    public float accuracyRate = 100f;
 
     public APokemon()
     {
@@ -233,6 +235,7 @@ abstract public class APokemon
         }
     }
 
+    // Use formula from generation III
     private void updateStat(ref int stat, eStat statType)
     {
         int baseStat = getBaseStat(statType);
@@ -333,5 +336,11 @@ abstract public class APokemon
                 Debug.Log("Should not be here");
                 return (-1);
         }
+    }
+
+    public void initInBattleStats()
+    {
+        evasionRate = 100f;
+        accuracyRate = 100f;
     }
 }

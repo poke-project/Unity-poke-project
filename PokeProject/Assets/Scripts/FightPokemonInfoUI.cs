@@ -27,7 +27,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
     [SerializeField]
     private Sprite highHp;
 
-    private float internalTime;
 
     void Awake()
     {
@@ -43,7 +42,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
             currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
             currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
         }
-        internalTime = 0.0f;
     }
 
 	void Start ()
@@ -80,22 +78,11 @@ public class FightPokemonInfoUI : MonoBehaviour {
 	
 	void Update ()
     {
-        // Remove after testing
-        if (pokemon.stats.hp > 0)
+        updateHpBar();
+        updateStatus();
+        if (isPlayer)
         {
-            if (internalTime > 0.1f)
-            {
-                pokemon.stats.hp -= 1;
-                internalTime = 0.0f;
-            }
-
-            updateHpBar();
-            updateStatus();
-            if (isPlayer)
-            {
-                setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit);
-            }
-            internalTime += Time.deltaTime;
+            setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit);
         }
 	}
 

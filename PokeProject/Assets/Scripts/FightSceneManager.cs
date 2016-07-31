@@ -23,11 +23,12 @@ public class FightSceneManager : MonoBehaviour {
     public Dictionary<string, Sprite> status;
     [HideInInspector]
     public Sprite blank;
-
-   // [HideInInspector]
+    [HideInInspector]
     public int currentSelection;
-   // [HideInInspector]
+    [HideInInspector]
     public eMode currentMode;
+
+    private float internalTime;
 
     void Awake()
     {
@@ -39,10 +40,13 @@ public class FightSceneManager : MonoBehaviour {
 
         // For test purpose
         player = new Bulbasaur();
+        player.initInBattleStats();
         enemy = new Bulbasaur();
+        enemy.initInBattleStats();
 
         currentSelection = 1;
         currentMode = eMode.MENU;
+        internalTime = 0.0f;
     }
 
 	// Use this for initialization
@@ -62,7 +66,7 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    moveProcess();
+                    moveProcess(player, enemy);
                     break;
 
                 default:
@@ -75,40 +79,80 @@ public class FightSceneManager : MonoBehaviour {
             currentSelection = 1;
             currentMode = eMode.MENU;
         }
+        if (internalTime > 0.1f)
+        {
+            player.stats.hp -= 1;
+            enemy.stats.hp -= 1;
+            internalTime = 0.0f;
+        }
+        internalTime += Time.deltaTime;
 	}
 
-    private void moveProcess()
+
+    private void moveProcess(APokemon user, APokemon target)
     {
-        // IMPLEMENT ACCURACY AND EVASION
-        //
-        Move usedMove = player.moves[currentSelection - 1];
+        Move usedMove = user.moves[currentSelection - 1];
         usedMove.use();
 
+        int hitProbability = (int)(usedMove.Accuracy * (user.accuracyRate / target.evasionRate));
+        if (!(hitProbability >= 100 || Random.Range(0, 100) < hitProbability))
+        {
+            print(usedMove.MoveName + " missed !");
+            return;
+        }
+        sStat userTurnStat = user.stats;
+        sStat targetTurnStat = target.stats;
+        // user attack or attackSpe stat
+        float userAttack;
+        // target defense or defenseSpe stat
+        float targetDefense;
+        bool isCritical = false;
+        // final dmgs
+        int dmgs;
+
+        float modifier = findDmgsModifier(user, target, usedMove, userTurnStat.speed, ref isCritical);
+        // On critical hit unchanged stats are used 
+        if (!isCritical)
+        {
+            // TODO : stats modification
+            if (user.status == eStatus.BURNED)
+            {
+                userTurnStat.att /= 2;
+            }
+        }
+        if (usedMove.Type.isPhysical())
+        {
+            userAttack = userTurnStat.att;
+            targetDefense = targetTurnStat.def;
+        }
+        else
+        {
+            userAttack = userTurnStat.attSpe;
+            targetDefense = targetTurnStat.defSpe;
+        }
+        dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
+        print(dmgs);
+        target.stats.hp -= dmgs;
+        if (target.stats.hp <= 0)
+        {
+            target.stats.hp = 0;
+            print(target.name + " is K.O.");
+        }
+    }
+
+    private float findDmgsModifier(APokemon user, APokemon target, Move move, float userSpeed, ref bool isCritical)
+    {
         // same type attack bonus : 1.5 if same type as user
         float stab;
         // type effectiveness
         float typeModifier;
         // critical hit bonus : 2 if critical
         float critical;
+        int critProbability;
         // items / abilities bonuses
         float other;
-        // random modifier from 0.85 to 1
-        float randModifier;
-        // dmgs modifier from previous bonuses
-        float modifier;
-        // user attack or attackSpe stat
-        float userAttack;
-        // receiver defense or defenseSpe stat
-        float receiverDefense;
-        // final dmgs
-        int dmgs;
-        //
-        // CHECK IF COPY IS OK
-        //
-        sStat turnUserStat = player.stats;
-        sStat turnReceiverStat = enemy.stats;
 
-        if (usedMove.Type.GetType() == player.type1.GetType() || usedMove.Type.GetType() == player.type2.GetType())
+        if (move.Type.GetType() == user.type1.GetType() || move.Type.GetType() == user.type2.GetType())
         {
             stab = 1.5f;
         }
@@ -116,40 +160,27 @@ public class FightSceneManager : MonoBehaviour {
         {
             stab = 1f;
         }
-        typeModifier = usedMove.Type.dmgsModifier(enemy.type1) * usedMove.Type.dmgsModifier(enemy.type2);
+        typeModifier = move.Type.dmgsModifier(target.type1) * move.Type.dmgsModifier(target.type2);
         // Could be better with shuffle bag
-        int probability = (int)(turnUserStat.speed / (512f / usedMove.criticalChanceModifier));
+        critProbability = (int)(userSpeed / (512f / move.CriticalChanceModifier));
+        //
         // Critical hit should ignore modifier from burn and stat modifiers
-        if (Random.Range(0, 100) < probability)
+        //
+        if (Random.Range(0, 100) < critProbability)
         {
-            critical = (2 * player.lvl + 5) / (player.lvl + 5);
+            critical = (2 * user.lvl + 5) / (user.lvl + 5);
+            isCritical = true;
         }
         else
         {
             critical = 1f;
-        }
-        if (player.status == eStatus.BURNED)
-        {
-            turnUserStat.att /= 2;
+            isCritical = false;
         }
 
         // TODO
         other = 1f;
 
-        randModifier = Random.Range(0.85f, 1f);
-        modifier = stab * typeModifier * critical * other * randModifier;
-        if (usedMove.Type.isPhysical())
-        {
-            userAttack = turnUserStat.att;
-            receiverDefense = turnReceiverStat.def;
-        }
-        else
-        {
-            userAttack = turnUserStat.attSpe;
-            receiverDefense = turnReceiverStat.defSpe;
-        }
-        dmgs = (int)(((((2 * (float)player.lvl) + 10) / 250) * (userAttack / receiverDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
-        print(dmgs);
+        return (stab * typeModifier * critical * other * Random.Range(0.85f, 1f));
     }
 
     private void menuActions()
