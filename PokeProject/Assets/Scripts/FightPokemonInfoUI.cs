@@ -113,12 +113,12 @@ public class FightPokemonInfoUI : MonoBehaviour {
 
     private void updateHpBar()
     {
-        hpBar.value = hpBar.maxValue - pokemon.stats.hp;
-        if (pokemon.stats.hp < (hpBar.maxValue / 5))
+        hpBar.value = pokemon.stats.hp - pokemon.currentStats.hp;
+        if (pokemon.currentStats.hp < (hpBar.maxValue / 5))
         {
             barImage.sprite = lowHp;
         }
-        else if (pokemon.stats.hp < (hpBar.maxValue / 2))
+        else if (pokemon.currentStats.hp < (hpBar.maxValue / 2))
         {
             barImage.sprite = mediumHp;
         }
@@ -156,6 +156,9 @@ public class FightPokemonInfoUI : MonoBehaviour {
                 statusImage.sprite = blank;
                 break;
 
+            case eStatus.CONFUSED:
+                break;
+
             default:
                 Debug.Log("Should not be here");
                 break;
@@ -164,8 +167,8 @@ public class FightPokemonInfoUI : MonoBehaviour {
 
     private void setHpText(Image first, Image second, Image third)
     {
-        int thirdDigit = getDigit(pokemon.stats.hp, 3);
-        int secondDigit = getDigit(pokemon.stats.hp, 2);
+        int thirdDigit = getDigit(pokemon.currentStats.hp, 3);
+        int secondDigit = getDigit(pokemon.currentStats.hp, 2);
         if (thirdDigit == 0)
         {
             third.enabled = false;
@@ -186,6 +189,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
             third.sprite = numbers[thirdDigit.ToString()];
             second.sprite = numbers[secondDigit.ToString()];
         }
-        first.sprite = numbers[getDigit(pokemon.stats.hp, 1).ToString()];
+        first.sprite = numbers[getDigit(pokemon.currentStats.hp, 1).ToString()];
     }
 }

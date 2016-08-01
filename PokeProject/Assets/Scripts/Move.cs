@@ -31,7 +31,7 @@ public class Move
         Accuracy = accuracy;
     }
 
-    public void use()
+    public int use()
     {
         if (CurrentPP > 0)
         {
@@ -40,7 +40,9 @@ public class Move
         else
         {
             Debug.Log("not enough pp");
+            return (0);
         }
+        return (1);
         Debug.Log(MoveName);
     }
 }

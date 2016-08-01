@@ -19,6 +19,7 @@ public enum eStatus
     PARALIZED,
     POISONED,
     SLEEPING,
+    CONFUSED,
     NORMAL
 }
 
@@ -118,6 +119,7 @@ abstract public class APokemon
     // Statistics (different for each instance)
     public eStatus status;
     public sStat stats;
+    public sStat currentStats;
     private sStat Evs;
     public int lootExp;
     public eAbility ability
@@ -140,6 +142,7 @@ abstract public class APokemon
     public int expThreshold;
     public float evasionRate = 100f;
     public float accuracyRate = 100f;
+    public int confusionTurns = 0;
 
     public APokemon()
     {
@@ -150,6 +153,7 @@ abstract public class APokemon
         updateStat(ref stats.attSpe, eStat.ATTSPE);
         updateStat(ref stats.defSpe, eStat.DEFSPE);
         updateStat(ref stats.speed, eStat.SPEED);
+        currentStats = stats;
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
         Debug.Log(stats.ToString());

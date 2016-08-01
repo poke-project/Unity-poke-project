@@ -8,9 +8,11 @@ public class MenuUI : MonoBehaviour {
 
     private GameObject[] boxes;
     private eMode lastMode;
+    private Text dialogue;
 
     void Awake()
     {
+        dialogue = transform.Find("Dialogue").Find("Text").GetComponent<Text>();
         boxes = new GameObject[transform.childCount];
         int i = 0;
         foreach (Transform child in transform)
@@ -39,6 +41,11 @@ public class MenuUI : MonoBehaviour {
                 lastMode = FightSceneManager.instance.currentMode;
                 boxes[(int)lastMode + 1].SetActive(true);
             }
+        }
+        if (FightSceneManager.instance.dialogueText != "")
+        {
+            boxes[(int)lastMode + 1].SetActive(false);
+            dialogue.text = FightSceneManager.instance.dialogueText;
         }
     }
 }

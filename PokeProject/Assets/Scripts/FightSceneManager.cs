@@ -27,8 +27,10 @@ public class FightSceneManager : MonoBehaviour {
     public int currentSelection;
     [HideInInspector]
     public eMode currentMode;
+    public string dialogueText;
 
     private float internalTime;
+
 
     void Awake()
     {
@@ -54,8 +56,26 @@ public class FightSceneManager : MonoBehaviour {
 	
 	}
 	
+    IEnumerator waitForEndDialogue()
+    {
+        while (!Input.GetKeyDown(KeyCode.O))
+            yield return null;
+        //while (dialogueText == null)
+        //{
+         //   yield return null;
+        //}
+    }
+
+    IEnumerator runTurn(APokemon first, APokemon second)
+    {
+        moveProcess(first, second);
+        yield return StartCoroutine(waitForEndDialogue());
+        moveProcess(second, first);
+    }
+
 	// Update is called once per frame
 	void Update () {
+        // block user input during dialogue
         updateSelection();
         controlStatus(player);
         controlStatus(enemy);
@@ -68,7 +88,16 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    moveProcess(player, enemy);
+                    if (player.currentStats.speed > enemy.currentStats.speed
+                        || (player.currentStats.speed == enemy.currentStats.speed
+                            && Random.Range(0, 100) < 50))
+                    {
+                        StartCoroutine(runTurn(player, enemy));
+                    }
+                    else
+                    {
+                        StartCoroutine(runTurn(enemy, player));
+                    }
                     break;
 
                 default:
@@ -80,12 +109,6 @@ public class FightSceneManager : MonoBehaviour {
         {
             currentSelection = 1;
             currentMode = eMode.MENU;
-        }
-        if (internalTime > 0.1f)
-        {
-            player.stats.hp -= 1;
-            enemy.stats.hp -= 1;
-            internalTime = 0.0f;
         }
         internalTime += Time.deltaTime;
 	}
@@ -117,21 +140,79 @@ public class FightSceneManager : MonoBehaviour {
         {
             pokemon.status = eStatus.NORMAL;
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            pokemon.status = eStatus.CONFUSED;
+            pokemon.confusionTurns = 1;
+        }
+    }
+
+    private int paralysisProcess(APokemon user, ref sStat turnStat)
+    {
+        if (user.status == eStatus.PARALIZED)
+        {
+            turnStat.speed = turnStat.speed / 4;
+            if (Random.Range(0, 100) < 25)
+            {
+                dialogueText = user.name + " is fully paralyzed and cannot attack";
+                return (0);
+            }
+        }
+        return (1);
+    }
+
+    private int confusionProcess(APokemon user, sStat turnStat)
+    {
+        if (user.status == eStatus.CONFUSED)
+        {
+            if (user.confusionTurns == 0)
+            {
+                user.status = eStatus.NORMAL;
+            }
+            else
+            {
+                user.confusionTurns--;
+                if (Random.Range(0, 100) < 50)
+                {
+                    int confusionDmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (turnStat.att / turnStat.def) * 40 + 2) * Random.Range(0.85f, 1f));
+                    dialogueText = user.name + " is confused !";
+                    dialogueText = user.name + " hurts itself !";
+                    user.currentStats.hp -= confusionDmgs;
+                    if (user.currentStats.hp <= 0)
+                    {
+                        user.currentStats.hp = 0;
+                        dialogueText = user.name + " is K.O.";
+                    }
+                    return (0);
+                }
+            }
+        }
+        return (1);
     }
 
     private void moveProcess(APokemon user, APokemon target)
     {
         Move usedMove = user.moves[currentSelection - 1];
-        usedMove.use();
 
+        if (usedMove.use() == 0)
+        {
+            return;
+        }
+        sStat userTurnStat = user.currentStats;
+        sStat targetTurnStat = target.currentStats;
+
+        if (paralysisProcess(user, ref userTurnStat) == 0
+            || confusionProcess(user, userTurnStat) == 0)
+        {
+            return;
+        }
+        // Add trapped and partially trapped
         int hitProbability = (int)(usedMove.Accuracy * (user.accuracyRate / target.evasionRate));
         if (!(hitProbability >= 100 || Random.Range(0, 100) < hitProbability))
         {
-            print(usedMove.MoveName + " missed !");
+            dialogueText = usedMove.MoveName + " missed !";
             return;
         }
-        sStat userTurnStat = user.stats;
-        sStat targetTurnStat = target.stats;
         // user attack or attackSpe stat
         float userAttack;
         // target defense or defenseSpe stat
@@ -161,12 +242,23 @@ public class FightSceneManager : MonoBehaviour {
             targetDefense = targetTurnStat.defSpe;
         }
         dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
-        print(dmgs);
-        target.stats.hp -= dmgs;
-        if (target.stats.hp <= 0)
+        // enemy : foe NAME used MOVENAME
+        dialogueText = user.name + " used " + usedMove.MoveName.ToUpper() + "!";
+        target.currentStats.hp -= dmgs;
+        // Special case badly poisoned (toxic)
+        if (user.status == eStatus.BURNED || user.status == eStatus.POISONED)
         {
-            target.stats.hp = 0;
-            print(target.name + " is K.O.");
+            user.currentStats.hp -= (player.stats.hp / 16);
+        }
+        if (target.currentStats.hp <= 0)
+        {
+            target.currentStats.hp = 0;
+            dialogueText = target.name + " is K.O.";
+        }
+        if (user.currentStats.hp <= 0)
+        {
+            user.currentStats.hp = 0;
+            dialogueText = target.name + " is K.O.";
         }
     }
 
