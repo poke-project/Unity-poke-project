@@ -138,11 +138,13 @@ abstract public class APokemon
     // 0 == female 1 == genderless 2 == male
     public int gender;
     public int exp = 0;
-    public int lvl = 100;
+    public int lvl = 5;
     public int expThreshold;
     public float evasionRate = 100f;
     public float accuracyRate = 100f;
     public int confusionTurns = 0;
+    public int damageReceived = 0;
+    public bool isEnemy = false;
 
     public APokemon()
     {
@@ -257,7 +259,9 @@ abstract public class APokemon
         }
     }
 
-    private void receiveExp(int expGain)
+    // TODO : EXP
+
+    public void receiveExp(int expGain)
     {
         // Apply modifier here ?
         exp += expGain;

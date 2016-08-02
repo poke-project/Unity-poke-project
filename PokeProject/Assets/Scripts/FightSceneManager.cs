@@ -29,6 +29,7 @@ public class FightSceneManager : MonoBehaviour {
     public eMode currentMode;
     public string dialogueText;
 
+    private APokemon faintedPokemon;
     private float internalTime;
     private bool inDialogue;
 
@@ -45,6 +46,7 @@ public class FightSceneManager : MonoBehaviour {
         player.initInBattleStats();
         enemy = new Bulbasaur();
         enemy.initInBattleStats();
+        enemy.isEnemy = true;
 
         currentSelection = 1;
         currentMode = eMode.MENU;
@@ -57,6 +59,31 @@ public class FightSceneManager : MonoBehaviour {
 	
 	}
 	
+    private void endTurn()
+    {
+        dialogueText = "";
+        currentMode = eMode.MENU;
+        inDialogue = false;
+    }
+
+    IEnumerator updateHp(APokemon pokemon)
+    {
+        int dmgs = 0;
+        while (dmgs != pokemon.damageReceived)
+        {
+            pokemon.currentStats.hp--;
+            if (pokemon.currentStats.hp == 0)
+            {
+                StopAllCoroutines();
+                faintedPokemon = pokemon;
+                StartCoroutine(pokemonFaintProcess(pokemon));
+                break;
+            }
+            dmgs++;
+            yield return null;
+        }
+    }
+
     IEnumerator waitForEndDialogue()
     {
         bool negateFirstInput = true;
@@ -67,16 +94,33 @@ public class FightSceneManager : MonoBehaviour {
         }
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second, bool enemyFirst)
+    IEnumerator moveWrapper(APokemon user, APokemon target, bool isUserEnemy)
+    {
+        user.damageReceived = 0;
+        target.damageReceived = 0;
+        moveProcess(user, target, isUserEnemy);
+        yield return StartCoroutine(waitForEndDialogue());
+        yield return StartCoroutine(updateHp(target));
+        yield return StartCoroutine(updateHp(user));
+    }
+
+    IEnumerator runTurn(APokemon first, APokemon second, bool isEnemyFirst)
     {
         inDialogue = true;
-        moveProcess(first, second, enemyFirst);
-        yield return StartCoroutine(waitForEndDialogue());
-        moveProcess(second, first, !enemyFirst);
-        yield return StartCoroutine(waitForEndDialogue());
-        dialogueText = "";
-        currentMode = eMode.MENU;
-        inDialogue = false;
+        yield return StartCoroutine(moveWrapper(first, second, isEnemyFirst));
+        yield return StartCoroutine(moveWrapper(second, first, !isEnemyFirst));
+        endTurn();
+    }
+
+    IEnumerator pokemonFaintProcess(APokemon pokemon)
+    {
+        if (pokemon.isEnemy)
+        {
+            dialogueText = player.name + " gained ";
+        }
+        endTurn();
+        print("here");
+        yield return null;
     }
 
 	// Update is called once per frame
@@ -185,6 +229,7 @@ public class FightSceneManager : MonoBehaviour {
                     int confusionDmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (turnStat.att / turnStat.def) * 40 + 2) * Random.Range(0.85f, 1f));
                     dialogueText = user.name + " is confused !";
                     dialogueText = user.name + " hurts itself !";
+                    user.damageReceived = confusionDmgs;
                     user.currentStats.hp -= confusionDmgs;
                     if (user.currentStats.hp <= 0)
                     {
@@ -257,11 +302,14 @@ public class FightSceneManager : MonoBehaviour {
             dialogueText = "Foe ";
         }
         dialogueText += user.name + " used " + usedMove.MoveName.ToUpper() + "!";
-        target.currentStats.hp -= dmgs;
+        target.damageReceived = dmgs;
+       // target.currentStats.hp -= dmgs;
         // Special case badly poisoned (toxic)
         if (user.status == eStatus.BURNED || user.status == eStatus.POISONED)
         {
-            user.currentStats.hp -= (player.stats.hp / 16);
+            // Does not inflict dmgs if enemy KO
+            user.damageReceived += (user.stats.hp / 16);
+            user.currentStats.hp -= (user.stats.hp / 16);
         }
         if (target.currentStats.hp <= 0)
         {

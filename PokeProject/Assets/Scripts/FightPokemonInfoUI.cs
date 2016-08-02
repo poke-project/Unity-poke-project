@@ -21,6 +21,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private APokemon pokemon;
     private Transform frame;
     private Sprite[] resourcesFrame;
+    private int goalHp;
 
     [SerializeField]
     private Sprite lowHp;
