@@ -11,9 +11,13 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private Image statusImage;
     private Image barImage;
     private Slider hpBar;
+    private Slider xpBar;
     private Image currentFirstDigit;
     private Image currentSecondDigit;
     private Image currentThirdDigit;
+    private Image maxFirstDigit;
+    private Image maxSecondDigit;
+    private Image maxThirdDigit;
     private Text pokemonName;
     private Dictionary<string, Sprite> numbers;
     private Dictionary<string, Sprite> status;
@@ -45,11 +49,18 @@ public class FightPokemonInfoUI : MonoBehaviour {
             currentFirstDigit = currentHpText.Find("First digit").GetComponent<Image>();
             currentSecondDigit = currentHpText.Find("Second digit").GetComponent<Image>();
             currentThirdDigit = currentHpText.Find("Third digit").GetComponent<Image>();
+            Transform maxHpText = frame.transform.Find("Hp text").Find("Max hp");
+            maxFirstDigit = maxHpText.Find("First digit").GetComponent<Image>();
+            maxSecondDigit = maxHpText.Find("Second digit").GetComponent<Image>();
+            maxThirdDigit = maxHpText.Find("Third digit").GetComponent<Image>();
+
             resourcesFrame = Resources.LoadAll<Sprite>("Sprites/Combat Scene/Player");
+            xpBar = frame.transform.Find("Xp bar").GetComponent<Slider>();
         }
         else
         {
             resourcesFrame = Resources.LoadAll<Sprite>("Sprites/Combat Scene/Enemy");
+            xpBar = null;
         }
     }
 
@@ -62,10 +73,8 @@ public class FightPokemonInfoUI : MonoBehaviour {
         {
             pokemon = FightSceneManager.instance.player;
             // Set text for max hp
-            Transform maxHpText = frame.transform.Find("Hp text").Find("Max hp");
-            // modify currentHp for pokemon's max hp
-            setHpText(maxHpText.Find("First digit").GetComponent<Image>(), maxHpText.Find("Second digit").GetComponent<Image>(), maxHpText.Find("Third digit").GetComponent<Image>());
             pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Back/" + pokemon.name);
+            xpBar.maxValue = pokemon.expThreshold;
         }
         // Check in pokedex if pokemon caught
         else
@@ -82,7 +91,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
             }
             pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.name);
         }
-        hpBar.maxValue = pokemon.stats.hp;
         updateFrame();
         updateName();
 	}
@@ -93,7 +101,9 @@ public class FightPokemonInfoUI : MonoBehaviour {
         updateStatus();
         if (isPlayer)
         {
-            setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit);
+            updateExp();
+            setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit, false);
+            setHpText(maxFirstDigit, maxSecondDigit, maxThirdDigit, true);
         }
 	}
     
@@ -112,8 +122,15 @@ public class FightPokemonInfoUI : MonoBehaviour {
         return ((number / ((int)Mathf.Pow(10, (digit - 1)))) % 10);
     }
 
+    private void updateExp()
+    {
+        xpBar.maxValue = pokemon.expThreshold;
+        xpBar.value = pokemon.exp;
+    }
+
     private void updateHpBar()
     {
+        hpBar.maxValue = pokemon.stats.hp;
         hpBar.value = pokemon.stats.hp - pokemon.currentStats.hp;
         if (pokemon.currentStats.hp < (hpBar.maxValue / 5))
         {
@@ -166,10 +183,23 @@ public class FightPokemonInfoUI : MonoBehaviour {
         }
     }
 
-    private void setHpText(Image first, Image second, Image third)
+    private void setHpText(Image first, Image second, Image third, bool isMax)
     {
-        int thirdDigit = getDigit(pokemon.currentStats.hp, 3);
-        int secondDigit = getDigit(pokemon.currentStats.hp, 2);
+        int thirdDigit;
+        int secondDigit;
+        int firstDigit;
+        if (isMax)
+        {
+            thirdDigit = getDigit(pokemon.stats.hp, 3);
+            secondDigit = getDigit(pokemon.stats.hp, 2);
+            firstDigit = getDigit(pokemon.stats.hp, 1);
+        }
+        else
+        {
+            thirdDigit = getDigit(pokemon.currentStats.hp, 3);
+            secondDigit = getDigit(pokemon.currentStats.hp, 2);
+            firstDigit = getDigit(pokemon.currentStats.hp, 1);
+        }
         if (thirdDigit == 0)
         {
             third.enabled = false;
@@ -190,6 +220,6 @@ public class FightPokemonInfoUI : MonoBehaviour {
             third.sprite = numbers[thirdDigit.ToString()];
             second.sprite = numbers[secondDigit.ToString()];
         }
-        first.sprite = numbers[getDigit(pokemon.currentStats.hp, 1).ToString()];
+        first.sprite = numbers[firstDigit.ToString()];
     }
 }

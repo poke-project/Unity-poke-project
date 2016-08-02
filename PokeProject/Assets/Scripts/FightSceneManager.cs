@@ -28,10 +28,12 @@ public class FightSceneManager : MonoBehaviour {
     [HideInInspector]
     public eMode currentMode;
     public string dialogueText;
+    public bool isTrainerBattle;
 
     private APokemon faintedPokemon;
     private float internalTime;
     private bool inDialogue;
+    private float nbParticipatedPokemon;
 
     void Awake()
     {
@@ -52,6 +54,7 @@ public class FightSceneManager : MonoBehaviour {
         currentMode = eMode.MENU;
         internalTime = 0.0f;
         inDialogue = false;
+        nbParticipatedPokemon = 1f;
     }
 
 	// Use this for initialization
@@ -68,8 +71,7 @@ public class FightSceneManager : MonoBehaviour {
 
     IEnumerator updateHp(APokemon pokemon)
     {
-        int dmgs = 0;
-        while (dmgs != pokemon.damageReceived)
+        while (pokemon.damageReceived > 0)
         {
             pokemon.currentStats.hp--;
             if (pokemon.currentStats.hp == 0)
@@ -79,7 +81,27 @@ public class FightSceneManager : MonoBehaviour {
                 StartCoroutine(pokemonFaintProcess(pokemon));
                 break;
             }
-            dmgs++;
+            pokemon.damageReceived--;
+            yield return null;
+        }
+    }
+
+    IEnumerator updateXp(int expGain)
+    {
+        int expChunk = (expGain / 200);
+        if (expChunk == 0)
+            expChunk = 1;
+        while (expGain > 0)
+        {
+            if (expGain >= expChunk)
+            {
+                player.receiveExp(expChunk);
+            }
+            else
+            {
+                player.receiveExp(expGain);
+            }
+            expGain -= expChunk;
             yield return null;
         }
     }
@@ -112,15 +134,36 @@ public class FightSceneManager : MonoBehaviour {
         endTurn();
     }
 
+    // Globalize to give exp to all participating pokemon
     IEnumerator pokemonFaintProcess(APokemon pokemon)
     {
         if (pokemon.isEnemy)
         {
-            dialogueText = player.name + " gained ";
+            int expGain = findExpGain(pokemon);
+            expGain = 5000;
+            print(expGain);
+            dialogueText = player.name + " gained " + expGain.ToString() + " EXP. Points!";
+            yield return StartCoroutine(updateXp(expGain));
+            yield return StartCoroutine(waitForEndDialogue());
         }
         endTurn();
         print("here");
         yield return null;
+    }
+
+    private int findExpGain(APokemon fainted)
+    {
+        float trainerBattleModifier;
+        int exp;
+
+        trainerBattleModifier = (isTrainerBattle ? 1.5f : 1f);
+        // Different formula if Object "Exp. All" in bag
+        // For participating pokemons :
+        // exp = (trainerBattleModifier * fainted.lootExp * fainted.lvl) / (7 * (nbParticipatedPokemon * 2))
+        // FOr other :
+        // exp = (trainerBattleModifier * fainted.lootExp * fainted.lvl) / (7 * (nbParticipatedPokemon * 2 * nbPokemonParty))
+        exp = (int)(((trainerBattleModifier * fainted.BaseLootExp * fainted.lvl)) / (7 * nbParticipatedPokemon));
+        return (exp);
     }
 
 	// Update is called once per frame

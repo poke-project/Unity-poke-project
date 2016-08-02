@@ -4,7 +4,7 @@ using System;
 
 public class Bulbasaur : APokemon {
 
-    protected override int baseLootExp { get { return (64); }}
+    public override int BaseLootExp { get { return (64); }}
     protected override eGrowthRate growthRate
     {
         get

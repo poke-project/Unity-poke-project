@@ -43,6 +43,5 @@ public class Move
             return (0);
         }
         return (1);
-        Debug.Log(MoveName);
     }
 }

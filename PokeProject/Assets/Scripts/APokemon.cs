@@ -92,7 +92,7 @@ abstract public class APokemon
     }
 
     // Base stats, constants
-    protected abstract int baseLootExp { get; }
+    public abstract int BaseLootExp { get; }
     protected abstract eGrowthRate growthRate { get; }
     protected abstract sStat baseStats { get; }
     private sStat Ivs;
@@ -121,7 +121,6 @@ abstract public class APokemon
     public sStat stats;
     public sStat currentStats;
     private sStat Evs;
-    public int lootExp;
     public eAbility ability
     {
         get
@@ -155,6 +154,7 @@ abstract public class APokemon
         updateStat(ref stats.attSpe, eStat.ATTSPE);
         updateStat(ref stats.defSpe, eStat.DEFSPE);
         updateStat(ref stats.speed, eStat.SPEED);
+        updateThreshold();
         currentStats = stats;
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
@@ -168,13 +168,14 @@ abstract public class APokemon
             return;
         lvl++;
         exp = 0;
+        int hpBefore = stats.hp;
         updateStat(ref stats.hp, eStat.HP);
+        currentStats.hp += (stats.hp - hpBefore);
         updateStat(ref stats.att, eStat.ATT);
         updateStat(ref stats.def, eStat.DEF);
         updateStat(ref stats.attSpe, eStat.ATTSPE);
         updateStat(ref stats.defSpe, eStat.DEFSPE);
         updateStat(ref stats.speed, eStat.SPEED);
-        //updateStat(lootExp);
         updateThreshold();
         receiveExp(expGain);
     }
@@ -259,11 +260,8 @@ abstract public class APokemon
         }
     }
 
-    // TODO : EXP
-
     public void receiveExp(int expGain)
     {
-        // Apply modifier here ?
         exp += expGain;
         if (exp >= expThreshold)
         {
