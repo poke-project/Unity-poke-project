@@ -42,10 +42,10 @@ public class MenuUI : MonoBehaviour {
                 boxes[(int)lastMode + 1].SetActive(true);
             }
         }
-        if (FightSceneManager.instance.dialogueText != "")
+        dialogue.text = FightSceneManager.instance.dialogueText;
+        if (dialogue.text != "")
         {
             boxes[(int)lastMode + 1].SetActive(false);
-            dialogue.text = FightSceneManager.instance.dialogueText;
         }
     }
 }

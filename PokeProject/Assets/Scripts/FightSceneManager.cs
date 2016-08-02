@@ -30,7 +30,7 @@ public class FightSceneManager : MonoBehaviour {
     public string dialogueText;
 
     private float internalTime;
-
+    private bool inDialogue;
 
     void Awake()
     {
@@ -49,6 +49,7 @@ public class FightSceneManager : MonoBehaviour {
         currentSelection = 1;
         currentMode = eMode.MENU;
         internalTime = 0.0f;
+        inDialogue = false;
     }
 
 	// Use this for initialization
@@ -58,24 +59,31 @@ public class FightSceneManager : MonoBehaviour {
 	
     IEnumerator waitForEndDialogue()
     {
-        while (!Input.GetKeyDown(KeyCode.O))
+        bool negateFirstInput = true;
+        while (negateFirstInput || !Input.GetKeyDown(KeyCode.Space))
+        {
+            negateFirstInput = false;
             yield return null;
-        //while (dialogueText == null)
-        //{
-         //   yield return null;
-        //}
+        }
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second)
+    IEnumerator runTurn(APokemon first, APokemon second, bool enemyFirst)
     {
-        moveProcess(first, second);
+        inDialogue = true;
+        moveProcess(first, second, enemyFirst);
         yield return StartCoroutine(waitForEndDialogue());
-        moveProcess(second, first);
+        moveProcess(second, first, !enemyFirst);
+        yield return StartCoroutine(waitForEndDialogue());
+        dialogueText = "";
+        currentMode = eMode.MENU;
+        inDialogue = false;
     }
 
 	// Update is called once per frame
 	void Update () {
         // block user input during dialogue
+        if (inDialogue)
+            return;
         updateSelection();
         controlStatus(player);
         controlStatus(enemy);
@@ -92,11 +100,11 @@ public class FightSceneManager : MonoBehaviour {
                         || (player.currentStats.speed == enemy.currentStats.speed
                             && Random.Range(0, 100) < 50))
                     {
-                        StartCoroutine(runTurn(player, enemy));
+                        StartCoroutine(runTurn(player, enemy, false));
                     }
                     else
                     {
-                        StartCoroutine(runTurn(enemy, player));
+                        StartCoroutine(runTurn(enemy, player, true));
                     }
                     break;
 
@@ -190,7 +198,7 @@ public class FightSceneManager : MonoBehaviour {
         return (1);
     }
 
-    private void moveProcess(APokemon user, APokemon target)
+    private void moveProcess(APokemon user, APokemon target, bool isEnemy)
     {
         Move usedMove = user.moves[currentSelection - 1];
 
@@ -243,7 +251,12 @@ public class FightSceneManager : MonoBehaviour {
         }
         dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
         // enemy : foe NAME used MOVENAME
-        dialogueText = user.name + " used " + usedMove.MoveName.ToUpper() + "!";
+        dialogueText = "";
+        if (isEnemy)
+        {
+            dialogueText = "Foe ";
+        }
+        dialogueText += user.name + " used " + usedMove.MoveName.ToUpper() + "!";
         target.currentStats.hp -= dmgs;
         // Special case badly poisoned (toxic)
         if (user.status == eStatus.BURNED || user.status == eStatus.POISONED)
