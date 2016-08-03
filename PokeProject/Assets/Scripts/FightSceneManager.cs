@@ -17,6 +17,19 @@ public class FightSceneManager : MonoBehaviour {
 
     public static FightSceneManager instance;
 
+    public static Dictionary<int, float> stageMultipliers
+    {
+        get
+        {
+            return (new Dictionary<int, float>()
+            {
+                { -6, 0.25f }, { -5, 0.28f }, { -4, 0.33f }, { -3, 0.4f }, { -2, 0.5f }, { -1, 0.6f },
+                { 0, 1f },
+                { 1, 1.5f }, { 2, 2f }, { 3, 2.5f }, { 4, 3f }, { 5, 3.5f }, { 6, 4f }
+            });
+        }
+        private set { }
+    }
     public APokemon player;
     public APokemon enemy;
     public Dictionary<string, Sprite> numbers;
@@ -28,12 +41,14 @@ public class FightSceneManager : MonoBehaviour {
     [HideInInspector]
     public eMode currentMode;
     public string dialogueText;
+    private List<string> texts;
     public bool isTrainerBattle;
 
     private APokemon faintedPokemon;
     private float internalTime;
     private bool inDialogue;
     private float nbParticipatedPokemon;
+    private string prefix;
 
     void Awake()
     {
@@ -45,16 +60,21 @@ public class FightSceneManager : MonoBehaviour {
 
         // For test purpose
         player = new Bulbasaur();
+
+        // REMOVE
+        player.stats.speed *= 2;
+
         player.initInBattleStats();
         enemy = new Bulbasaur();
         enemy.initInBattleStats();
         enemy.isEnemy = true;
-
         currentSelection = 1;
         currentMode = eMode.MENU;
         internalTime = 0.0f;
         inDialogue = false;
         nbParticipatedPokemon = 1f;
+        texts = new List<string>();
+
     }
 
 	// Use this for initialization
@@ -65,6 +85,7 @@ public class FightSceneManager : MonoBehaviour {
     private void endTurn()
     {
         dialogueText = "";
+        texts.Clear();
         currentMode = eMode.MENU;
         inDialogue = false;
     }
@@ -116,38 +137,62 @@ public class FightSceneManager : MonoBehaviour {
         }
     }
 
-    IEnumerator moveWrapper(APokemon user, APokemon target, bool isUserEnemy)
+    IEnumerator waitForEndDialogue(string text)
+    {
+        dialogueText = text;
+        yield return waitForEndDialogue();
+    }
+
+    IEnumerator startDialogue()
+    {
+        foreach (string text in texts)
+        {
+            yield return StartCoroutine(waitForEndDialogue(text));
+        }
+        texts.Clear();
+    }
+
+    IEnumerator moveWrapper(APokemon user, APokemon target)
     {
         user.damageReceived = 0;
         target.damageReceived = 0;
-        moveProcess(user, target, isUserEnemy);
-        yield return StartCoroutine(waitForEndDialogue());
+        // Move related effects
+        moveProcess(user, target);
+        yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(target));
+        yield return StartCoroutine(updateHp(user));
+        // Status related effects
+        statusEffect(user);
+        yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(user));
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second, bool isEnemyFirst)
+    IEnumerator runTurn(APokemon first, APokemon second)
     {
         inDialogue = true;
-        yield return StartCoroutine(moveWrapper(first, second, isEnemyFirst));
-        yield return StartCoroutine(moveWrapper(second, first, !isEnemyFirst));
+        yield return StartCoroutine(moveWrapper(first, second));
+        yield return StartCoroutine(moveWrapper(second, first));
         endTurn();
     }
 
     // Globalize to give exp to all participating pokemon
     IEnumerator pokemonFaintProcess(APokemon pokemon)
     {
+        yield return StartCoroutine(waitForEndDialogue((pokemon.isEnemy ? "Foe " : "") + pokemon.name + " fainted!"));
         if (pokemon.isEnemy)
         {
             int expGain = findExpGain(pokemon);
             expGain = 5000;
             print(expGain);
-            dialogueText = player.name + " gained " + expGain.ToString() + " EXP. Points!";
+            texts.Add(player.name + " gained " + expGain.ToString() + " EXP. Points!");
+            yield return StartCoroutine(startDialogue());
             yield return StartCoroutine(updateXp(expGain));
-            yield return StartCoroutine(waitForEndDialogue());
+        }
+        else
+        {
+            // Choose other pokemon
         }
         endTurn();
-        print("here");
         yield return null;
     }
 
@@ -187,11 +232,11 @@ public class FightSceneManager : MonoBehaviour {
                         || (player.currentStats.speed == enemy.currentStats.speed
                             && Random.Range(0, 100) < 50))
                     {
-                        StartCoroutine(runTurn(player, enemy, false));
+                        StartCoroutine(runTurn(player, enemy));
                     }
                     else
                     {
-                        StartCoroutine(runTurn(enemy, player, true));
+                        StartCoroutine(runTurn(enemy, player));
                     }
                     break;
 
@@ -242,21 +287,25 @@ public class FightSceneManager : MonoBehaviour {
         }
     }
 
-    private int paralysisProcess(APokemon user, ref sStat turnStat)
+    private bool paralysisProcess(APokemon user)
     {
         if (user.status == eStatus.PARALIZED)
         {
-            turnStat.speed = turnStat.speed / 4;
+            user.currentStats.speed = user.stats.speed / 4;
             if (Random.Range(0, 100) < 25)
             {
-                dialogueText = user.name + " is fully paralyzed and cannot attack";
-                return (0);
+                texts.Add(user.name + " is fully paralyzed and cannot attack");
+                return (false);
             }
         }
-        return (1);
+        else
+        {
+            user.currentStats.speed = user.stats.speed;
+        }
+        return (true);
     }
 
-    private int confusionProcess(APokemon user, sStat turnStat)
+    private bool confusionProcess(APokemon user)
     {
         if (user.status == eStatus.CONFUSED)
         {
@@ -269,24 +318,94 @@ public class FightSceneManager : MonoBehaviour {
                 user.confusionTurns--;
                 if (Random.Range(0, 100) < 50)
                 {
-                    int confusionDmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (turnStat.att / turnStat.def) * 40 + 2) * Random.Range(0.85f, 1f));
-                    dialogueText = user.name + " is confused !";
-                    dialogueText = user.name + " hurts itself !";
+                    int confusionDmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (user.currentStats.att / user.currentStats.def) * 40 + 2) * Random.Range(0.85f, 1f));
+                    texts.Add(prefix + user.name + " is confused !");
+                    texts.Add(prefix + user.name + " hurts itself !");
                     user.damageReceived = confusionDmgs;
-                    user.currentStats.hp -= confusionDmgs;
-                    if (user.currentStats.hp <= 0)
-                    {
-                        user.currentStats.hp = 0;
-                        dialogueText = user.name + " is K.O.";
-                    }
-                    return (0);
+                    return (false);
                 }
             }
         }
-        return (1);
+        return (true);
     }
 
-    private void moveProcess(APokemon user, APokemon target, bool isEnemy)
+    private bool hitCheck(Move move, APokemon user, APokemon target)
+    {
+        int hitProbability = (int)(move.Accuracy * (user.accuracyRate / target.evasionRate));
+        if (!(hitProbability >= 100 || Random.Range(0, 100) < hitProbability))
+        {
+            texts.Add(prefix + user.name + " missed !");
+            return (false);
+        }
+        return (true);
+    }
+
+    // TODO : add precision and accuracy modifier
+    private void moveStatsProcess(Move move, APokemon user, APokemon target)
+    {
+        if (move.EnemyEffect.hasStatEffect())
+        {
+            target.statsStages += move.EnemyEffect;
+            capStatsStages(ref target.statsStages);
+            target.applyStagesMultipliers();
+        }
+        if (move.SelfEffect.hasStatEffect())
+        {
+            user.statsStages += move.SelfEffect;
+            capStatsStages(ref user.statsStages);
+            user.applyStagesMultipliers();
+        }
+    }
+
+    private void moveDamagesProcess(Move move, APokemon user, APokemon target)
+    {
+        if (move.EnemyEffect.hp != 0)
+        {
+            inflictDamages(move, user, target);
+        }
+        if (move.SelfEffect.hp != 0)
+        {
+            inflictDamages(move, user, user);
+        }
+    }
+
+    private void inflictDamages(Move move, APokemon user, APokemon target)
+    {
+        bool isCritical;
+        sStat userTurnStat;
+        sStat targetTurnStat;
+
+        float modifier = findDmgsModifier(user, target, move, user.currentStats.speed, out isCritical);
+        if (isCritical)
+        {
+             userTurnStat = user.stats;
+             targetTurnStat = target.stats;
+        }
+        else
+        {
+            userTurnStat = user.currentStats;
+            targetTurnStat = target.currentStats;
+            if (user.status == eStatus.BURNED)
+                userTurnStat.att /= 2;
+        }
+
+        // user attack or attackSpe stat
+        float userAttack;
+        // target defense or defenseSpe stat
+        float targetDefense;
+        getAttackAndDefense(userTurnStat, targetTurnStat, out userAttack, out targetDefense,
+            move.Type.isPhysical());
+
+        // final dmgs
+        int dmgs;
+        dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense)
+            * move.EnemyEffect.hp + 2) * modifier);
+        print(dmgs);
+        texts.Add(prefix + user.name + " used " + move.MoveName.ToUpper() + "!");
+        target.damageReceived = dmgs;
+    }
+
+    private void moveProcess(APokemon user, APokemon target)
     {
         Move usedMove = user.moves[currentSelection - 1];
 
@@ -294,79 +413,62 @@ public class FightSceneManager : MonoBehaviour {
         {
             return;
         }
-        sStat userTurnStat = user.currentStats;
-        sStat targetTurnStat = target.currentStats;
+        prefix = user.isEnemy ? "Foe " : "";
 
-        if (paralysisProcess(user, ref userTurnStat) == 0
-            || confusionProcess(user, userTurnStat) == 0)
-        {
-            return;
-        }
         // Add trapped and partially trapped
-        int hitProbability = (int)(usedMove.Accuracy * (user.accuracyRate / target.evasionRate));
-        if (!(hitProbability >= 100 || Random.Range(0, 100) < hitProbability))
+        if (!paralysisProcess(user)
+            || !confusionProcess(user)
+            || !hitCheck(usedMove, user, target))
         {
-            dialogueText = usedMove.MoveName + " missed !";
             return;
         }
-        // user attack or attackSpe stat
-        float userAttack;
-        // target defense or defenseSpe stat
-        float targetDefense;
-        bool isCritical = false;
-        // final dmgs
-        int dmgs;
 
-        float modifier = findDmgsModifier(user, target, usedMove, userTurnStat.speed, ref isCritical);
-        // On critical hit unchanged stats are used 
-        if (!isCritical)
+        moveStatsProcess(usedMove, user, target);
+        moveDamagesProcess(usedMove, user, target);
+    }
+
+    private void getAttackAndDefense(sStat userStats, sStat targetStats, out float userAttack, out float targetDefense, bool isMovePhysical)
+    {
+        if (isMovePhysical)
         {
-            // TODO : stats modification
-            if (user.status == eStatus.BURNED)
-            {
-                userTurnStat.att /= 2;
-            }
-        }
-        if (usedMove.Type.isPhysical())
-        {
-            userAttack = userTurnStat.att;
-            targetDefense = targetTurnStat.def;
+            userAttack = userStats.att;
+            targetDefense = targetStats.def;
         }
         else
         {
-            userAttack = userTurnStat.attSpe;
-            targetDefense = targetTurnStat.defSpe;
-        }
-        dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense) * usedMove.EnemyEffect.hp + 2) * modifier);
-        // enemy : foe NAME used MOVENAME
-        dialogueText = "";
-        if (isEnemy)
-        {
-            dialogueText = "Foe ";
-        }
-        dialogueText += user.name + " used " + usedMove.MoveName.ToUpper() + "!";
-        target.damageReceived = dmgs;
-       // target.currentStats.hp -= dmgs;
-        // Special case badly poisoned (toxic)
-        if (user.status == eStatus.BURNED || user.status == eStatus.POISONED)
-        {
-            // Does not inflict dmgs if enemy KO
-            user.damageReceived += (user.stats.hp / 16);
-            user.currentStats.hp -= (user.stats.hp / 16);
-        }
-        if (target.currentStats.hp <= 0)
-        {
-            target.currentStats.hp = 0;
-            dialogueText = target.name + " is K.O.";
-        }
-        if (user.currentStats.hp <= 0)
-        {
-            user.currentStats.hp = 0;
-            dialogueText = target.name + " is K.O.";
+            userAttack = userStats.attSpe;
+            targetDefense = targetStats.defSpe;
         }
     }
 
-    private float findDmgsModifier(APokemon user, APokemon target, Move move, float userSpeed, ref bool isCritical)
+    private void capStatsStages(ref sStat s)
+    {
+        // add "Nothing happened !" dialogue
+        if (s.att > 6) s.att = 6;
+        if (s.def > 6) s.def = 6;
+        if (s.attSpe > 6) s.attSpe = 6;
+        if (s.defSpe > 6) s.defSpe = 6;
+        if (s.speed > 6) s.speed = 6;
+
+        if (s.att < -6) s.att = -6;
+        if (s.def < -6) s.def = -6;
+        if (s.attSpe < -6) s.attSpe = -6;
+        if (s.defSpe < -6) s.defSpe = -6;
+        if (s.speed < -6) s.speed = -6;
+    }
+
+    private void statusEffect(APokemon pokemon)
+    {
+        // TODO Special case badly poisoned (toxic)
+        if (pokemon.status == eStatus.BURNED || pokemon.status == eStatus.POISONED)
+        {
+            // Does not inflict dmgs if enemy KO
+            pokemon.damageReceived = (pokemon.stats.hp / 16);
+            texts.Add(prefix + pokemon.name + "'s hurt by the burn!");
+        }
+    }
+
+    private float findDmgsModifier(APokemon user, APokemon target, Move move, float userSpeed, out bool isCritical)
     {
         // same type attack bonus : 1.5 if same type as user
         float stab;

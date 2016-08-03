@@ -23,6 +23,7 @@ public enum eStatus
     NORMAL
 }
 
+// use class instead
 public struct sStat
 {
     public sStat(int hp, int att, int def, int attSpe, int defSpe, int speed)
@@ -37,6 +38,20 @@ public struct sStat
     public override string ToString()
     {
         return ("hp : " + hp.ToString() +  " att : " + att.ToString() +  " def : " + def.ToString() +  " attSpe : " + attSpe.ToString() + " defSpe : " + defSpe.ToString() + " speed : " + speed.ToString());
+    }
+    public bool hasStatEffect()
+    {
+        return ((att != 0) || (def != 0) || (attSpe != 0) || (defSpe != 0) || (speed != 0));
+    }
+
+    public static sStat operator +(sStat s1, sStat s2)
+    {
+        return (new sStat(s1.hp + s2.hp,
+            s1.att + s2.att,
+            s1.def + s2.def,
+            s1.attSpe + s2.attSpe,
+            s1.defSpe + s2.defSpe,
+            s1.speed + s2.speed));
     }
     public int hp;
     public int att;
@@ -119,7 +134,6 @@ abstract public class APokemon
     // Statistics (different for each instance)
     public eStatus status;
     public sStat stats;
-    public sStat currentStats;
     private sStat Evs;
     public eAbility ability
     {
@@ -139,8 +153,14 @@ abstract public class APokemon
     public int exp = 0;
     public int lvl = 5;
     public int expThreshold;
+    
+    // In Fight
+    public sStat currentStats;
+    public sStat statsStages;
     public float evasionRate = 100f;
+    public int stageEvasion = 0;
     public float accuracyRate = 100f;
+    public int stageAccuracy = 0;
     public int confusionTurns = 0;
     public int damageReceived = 0;
     public bool isEnemy = false;
@@ -242,6 +262,19 @@ abstract public class APokemon
                 break;
         }
     }
+
+    public void applyStagesMultipliers()
+    {
+        currentStats.att = (int)(stats.att * FightSceneManager.stageMultipliers[statsStages.att]);
+        currentStats.def = (int)(stats.def * FightSceneManager.stageMultipliers[statsStages.def]);
+        currentStats.attSpe = (int)(stats.attSpe * FightSceneManager.stageMultipliers[statsStages.attSpe]);
+        currentStats.defSpe = (int)(stats.defSpe * FightSceneManager.stageMultipliers[statsStages.defSpe]);
+        currentStats.speed = (int)(stats.speed * FightSceneManager.stageMultipliers[statsStages.speed]);
+        evasionRate = (int)(100f * FightSceneManager.stageMultipliers[-stageEvasion]);
+        accuracyRate = (int)(100f * FightSceneManager.stageMultipliers[stageAccuracy]);
+    }
+
+
 
     // Use formula from generation III
     private void updateStat(ref int stat, eStat statType)
@@ -349,5 +382,6 @@ abstract public class APokemon
     {
         evasionRate = 100f;
         accuracyRate = 100f;
+        statsStages = new sStat(0, 0, 0, 0, 0, 0);
     }
 }
