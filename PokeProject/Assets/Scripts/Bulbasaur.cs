@@ -12,18 +12,18 @@ public class Bulbasaur : APokemon {
             return (eGrowthRate.mediumSlow);
         }
     }
-    protected override sStat baseStats
+    protected override Statistics baseStats
     {
        get
         {
-            return (new sStat(45, 49, 49, 65, 65, 45));
+            return (new Statistics(45, 49, 49, 65, 65, 45, 100, 100));
         }
     }
-    protected override sStat lootEvs
+    protected override Statistics lootEvs
     {
         get
         {
-            return (new sStat(0, 0, 0, 1, 0, 0));
+            return (new Statistics(0, 0, 0, 1, 0, 0, 0, 0));
         }
     }
     public override int numberEntry
@@ -122,8 +122,8 @@ public class Bulbasaur : APokemon {
     {
         get
         {
-            sStat enemyEffect = new sStat(140, 0, 0, 0, 0, 0);
-            sStat selfEffect = new sStat(0, 0, 0, 0, 0, 0);
+            Statistics enemyEffect = new Statistics(140, 0, 0, 0, 0, 0, 0, 0);
+            Statistics selfEffect = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
             return (new Move("Tackle", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1, 100));
         }
         set
@@ -135,8 +135,8 @@ public class Bulbasaur : APokemon {
     {
         get
         {
-            sStat enemyEffect = new sStat(0, 1, 1, 1, 1, 1);
-            sStat selfEffect = new sStat(0, 1, 1, 1, 1, 1);
+            Statistics enemyEffect = new Statistics(0, 1, 1, 1, 1, 1, 1, 1);
+            Statistics selfEffect = new Statistics(0, 1, 1, 1, 1, 1, 1, 1);
             return (new Move("blabla", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1, 100));
         }
         set

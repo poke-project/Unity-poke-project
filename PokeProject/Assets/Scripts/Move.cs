@@ -7,8 +7,8 @@ public class Move
     public int MaxPP { get; private set; }
     public int CurrentPP { get; private set; }
 
-    public sStat EnemyEffect { get; private set; }
-    public sStat SelfEffect { get; private set; }
+    public Statistics EnemyEffect { get; private set; }
+    public Statistics SelfEffect { get; private set; }
     public eStatus EnemyStatus { get; private set; }
     public eStatus SelfStatus { get; private set; }
     public AType Type;
@@ -17,7 +17,7 @@ public class Move
     public float Accuracy { get; private set; }
 
     // Adapt constructor
-    public Move(string name, int pp, sStat enemyEffect, sStat selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance, float accuracy)
+    public Move(string name, int pp, Statistics enemyEffect, Statistics selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance, float accuracy)
     {
         MoveName = name;
         MaxPP = pp;

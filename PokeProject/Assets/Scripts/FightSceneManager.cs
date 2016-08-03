@@ -62,7 +62,9 @@ public class FightSceneManager : MonoBehaviour {
         player = new Bulbasaur();
 
         // REMOVE
+        player.currentStats.speed *= 2;
         player.stats.speed *= 2;
+        // END REMOVE
 
         player.initInBattleStats();
         enemy = new Bulbasaur();
@@ -228,6 +230,8 @@ public class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
+                    print(player.currentStats.speed);
+                    print(enemy.currentStats.speed);
                     if (player.currentStats.speed > enemy.currentStats.speed
                         || (player.currentStats.speed == enemy.currentStats.speed
                             && Random.Range(0, 100) < 50))
@@ -331,7 +335,7 @@ public class FightSceneManager : MonoBehaviour {
 
     private bool hitCheck(Move move, APokemon user, APokemon target)
     {
-        int hitProbability = (int)(move.Accuracy * (user.accuracyRate / target.evasionRate));
+        int hitProbability = (int)(move.Accuracy * (user.currentStats.accuracy / target.currentStats.evasion));
         if (!(hitProbability >= 100 || Random.Range(0, 100) < hitProbability))
         {
             texts.Add(prefix + user.name + " missed !");
@@ -346,13 +350,13 @@ public class FightSceneManager : MonoBehaviour {
         if (move.EnemyEffect.hasStatEffect())
         {
             target.statsStages += move.EnemyEffect;
-            capStatsStages(ref target.statsStages);
+            capStatsStages(target.statsStages);
             target.applyStagesMultipliers();
         }
         if (move.SelfEffect.hasStatEffect())
         {
             user.statsStages += move.SelfEffect;
-            capStatsStages(ref user.statsStages);
+            capStatsStages(user.statsStages);
             user.applyStagesMultipliers();
         }
     }
@@ -372,8 +376,8 @@ public class FightSceneManager : MonoBehaviour {
     private void inflictDamages(Move move, APokemon user, APokemon target)
     {
         bool isCritical;
-        sStat userTurnStat;
-        sStat targetTurnStat;
+        Statistics userTurnStat;
+        Statistics targetTurnStat;
 
         float modifier = findDmgsModifier(user, target, move, user.currentStats.speed, out isCritical);
         if (isCritical)
@@ -400,7 +404,6 @@ public class FightSceneManager : MonoBehaviour {
         int dmgs;
         dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense)
             * move.EnemyEffect.hp + 2) * modifier);
-        print(dmgs);
         texts.Add(prefix + user.name + " used " + move.MoveName.ToUpper() + "!");
         target.damageReceived = dmgs;
     }
@@ -427,7 +430,7 @@ public class FightSceneManager : MonoBehaviour {
         moveDamagesProcess(usedMove, user, target);
     }
 
-    private void getAttackAndDefense(sStat userStats, sStat targetStats, out float userAttack, out float targetDefense, bool isMovePhysical)
+    private void getAttackAndDefense(Statistics userStats, Statistics targetStats, out float userAttack, out float targetDefense, bool isMovePhysical)
     {
         if (isMovePhysical)
         {
@@ -441,7 +444,7 @@ public class FightSceneManager : MonoBehaviour {
         }
     }
 
-    private void capStatsStages(ref sStat s)
+    private void capStatsStages(Statistics s)
     {
         // add "Nothing happened !" dialogue
         if (s.att > 6) s.att = 6;
@@ -449,12 +452,16 @@ public class FightSceneManager : MonoBehaviour {
         if (s.attSpe > 6) s.attSpe = 6;
         if (s.defSpe > 6) s.defSpe = 6;
         if (s.speed > 6) s.speed = 6;
+        if (s.evasion > 6) s.evasion = 6;
+        if (s.accuracy > 6) s.accuracy = 6;
 
         if (s.att < -6) s.att = -6;
         if (s.def < -6) s.def = -6;
         if (s.attSpe < -6) s.attSpe = -6;
         if (s.defSpe < -6) s.defSpe = -6;
         if (s.speed < -6) s.speed = -6;
+        if (s.evasion < -6) s.evasion = -6;
+        if (s.accuracy < -6) s.accuracy = -6;
     }
 
     private void statusEffect(APokemon pokemon)

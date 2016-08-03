@@ -23,43 +23,6 @@ public enum eStatus
     NORMAL
 }
 
-// use class instead
-public struct sStat
-{
-    public sStat(int hp, int att, int def, int attSpe, int defSpe, int speed)
-    {
-        this.hp = hp;
-        this.att = att;
-        this.def = def;
-        this.attSpe = attSpe;
-        this.defSpe = defSpe;
-        this.speed = speed;
-    }
-    public override string ToString()
-    {
-        return ("hp : " + hp.ToString() +  " att : " + att.ToString() +  " def : " + def.ToString() +  " attSpe : " + attSpe.ToString() + " defSpe : " + defSpe.ToString() + " speed : " + speed.ToString());
-    }
-    public bool hasStatEffect()
-    {
-        return ((att != 0) || (def != 0) || (attSpe != 0) || (defSpe != 0) || (speed != 0));
-    }
-
-    public static sStat operator +(sStat s1, sStat s2)
-    {
-        return (new sStat(s1.hp + s2.hp,
-            s1.att + s2.att,
-            s1.def + s2.def,
-            s1.attSpe + s2.attSpe,
-            s1.defSpe + s2.defSpe,
-            s1.speed + s2.speed));
-    }
-    public int hp;
-    public int att;
-    public int def;
-    public int attSpe;
-    public int defSpe;
-    public int speed;
-}
 
 abstract public class APokemon
 {
@@ -109,9 +72,9 @@ abstract public class APokemon
     // Base stats, constants
     public abstract int BaseLootExp { get; }
     protected abstract eGrowthRate growthRate { get; }
-    protected abstract sStat baseStats { get; }
-    private sStat Ivs;
-    protected abstract sStat lootEvs { get; }
+    protected abstract Statistics baseStats { get; }
+    private Statistics Ivs;
+    protected abstract Statistics lootEvs { get; }
 
 
     // Readonly ?
@@ -133,8 +96,8 @@ abstract public class APokemon
 
     // Statistics (different for each instance)
     public eStatus status;
-    public sStat stats;
-    private sStat Evs;
+    public Statistics stats;
+    private Statistics Evs;
     public eAbility ability
     {
         get
@@ -155,19 +118,17 @@ abstract public class APokemon
     public int expThreshold;
     
     // In Fight
-    public sStat currentStats;
-    public sStat statsStages;
-    public float evasionRate = 100f;
-    public int stageEvasion = 0;
-    public float accuracyRate = 100f;
-    public int stageAccuracy = 0;
+    public Statistics currentStats;
+    public Statistics statsStages;
     public int confusionTurns = 0;
     public int damageReceived = 0;
     public bool isEnemy = false;
 
     public APokemon()
     {
-        stats = baseStats;
+        setIv();
+        Evs = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
+        stats = new Statistics(baseStats);
         updateStat(ref stats.hp, eStat.HP);
         updateStat(ref stats.att, eStat.ATT);
         updateStat(ref stats.def, eStat.DEF);
@@ -175,7 +136,7 @@ abstract public class APokemon
         updateStat(ref stats.defSpe, eStat.DEFSPE);
         updateStat(ref stats.speed, eStat.SPEED);
         updateThreshold();
-        currentStats = stats;
+        currentStats = new Statistics(stats);
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
         Debug.Log(stats.ToString());
@@ -270,11 +231,9 @@ abstract public class APokemon
         currentStats.attSpe = (int)(stats.attSpe * FightSceneManager.stageMultipliers[statsStages.attSpe]);
         currentStats.defSpe = (int)(stats.defSpe * FightSceneManager.stageMultipliers[statsStages.defSpe]);
         currentStats.speed = (int)(stats.speed * FightSceneManager.stageMultipliers[statsStages.speed]);
-        evasionRate = (int)(100f * FightSceneManager.stageMultipliers[-stageEvasion]);
-        accuracyRate = (int)(100f * FightSceneManager.stageMultipliers[stageAccuracy]);
+        currentStats.evasion = (int)(100f * FightSceneManager.stageMultipliers[-(int)statsStages.evasion]);
+        currentStats.accuracy = (int)(100f * FightSceneManager.stageMultipliers[(int)statsStages.accuracy]);
     }
-
-
 
     // Use formula from generation III
     private void updateStat(ref int stat, eStat statType)
@@ -348,12 +307,14 @@ abstract public class APokemon
 
     private void setIv()
     {
-        Ivs.hp = UnityEngine.Random.Range(0, 32);
-        Ivs.att = UnityEngine.Random.Range(0, 32);
-        Ivs.def = UnityEngine.Random.Range(0, 32);
-        Ivs.attSpe = UnityEngine.Random.Range(0, 32);
-        Ivs.defSpe = UnityEngine.Random.Range(0, 32);
-        Ivs.speed = UnityEngine.Random.Range(0, 32);
+        Ivs = new Statistics(UnityEngine.Random.Range(0, 32),
+            UnityEngine.Random.Range(0, 32),
+            UnityEngine.Random.Range(0, 32),
+            UnityEngine.Random.Range(0, 32),
+            UnityEngine.Random.Range(0, 32),
+            UnityEngine.Random.Range(0, 32),
+            0,
+            0);
     }
 
     private int getBaseStat(eStat statType)
@@ -380,8 +341,8 @@ abstract public class APokemon
 
     public void initInBattleStats()
     {
-        evasionRate = 100f;
-        accuracyRate = 100f;
-        statsStages = new sStat(0, 0, 0, 0, 0, 0);
+        currentStats.evasion = 100f;
+        currentStats.accuracy = 100f;
+        statsStages = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
     }
 }
