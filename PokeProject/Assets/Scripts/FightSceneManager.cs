@@ -154,12 +154,12 @@ public class FightSceneManager : MonoBehaviour {
         texts.Clear();
     }
 
-    IEnumerator moveWrapper(APokemon user, APokemon target)
+    IEnumerator moveWrapper(APokemon user, APokemon target, int moveSelected)
     {
         user.damageReceived = 0;
         target.damageReceived = 0;
         // Move related effects
-        moveProcess(user, target);
+        moveProcess(user, target, moveSelected);
         yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(target));
         yield return StartCoroutine(updateHp(user));
@@ -169,11 +169,11 @@ public class FightSceneManager : MonoBehaviour {
         yield return StartCoroutine(updateHp(user));
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second)
+    IEnumerator runTurn(APokemon first, APokemon second, int moveSelected)
     {
         inDialogue = true;
-        yield return StartCoroutine(moveWrapper(first, second));
-        yield return StartCoroutine(moveWrapper(second, first));
+        yield return StartCoroutine(moveWrapper(first, second, moveSelected));
+        yield return StartCoroutine(moveWrapper(second, first, moveSelected));
         endTurn();
     }
 
@@ -213,49 +213,7 @@ public class FightSceneManager : MonoBehaviour {
         return (exp);
     }
 
-	// Update is called once per frame
-	void Update () {
-        // block user input during dialogue
-        if (inDialogue)
-            return;
-        updateSelection();
-        controlStatus(player);
-        controlStatus(enemy);
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            switch (currentMode)
-            {
-                case eMode.MENU:
-                    menuActions();
-                    break;
 
-                case eMode.FIGHT:
-                    print(player.currentStats.speed);
-                    print(enemy.currentStats.speed);
-                    if (player.currentStats.speed > enemy.currentStats.speed
-                        || (player.currentStats.speed == enemy.currentStats.speed
-                            && Random.Range(0, 100) < 50))
-                    {
-                        StartCoroutine(runTurn(player, enemy));
-                    }
-                    else
-                    {
-                        StartCoroutine(runTurn(enemy, player));
-                    }
-                    break;
-
-                default:
-                    print("Should not be here");
-                    break;
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            currentSelection = 1;
-            currentMode = eMode.MENU;
-        }
-        internalTime += Time.deltaTime;
-	}
 
     // Remove after test
     private void controlStatus(APokemon pokemon)
@@ -344,20 +302,18 @@ public class FightSceneManager : MonoBehaviour {
         return (true);
     }
 
-    // TODO : add precision and accuracy modifier
-    private void moveStatsProcess(Move move, APokemon user, APokemon target)
+    private void moveStatsProcess(Statistics effect, APokemon target)
     {
-        if (move.EnemyEffect.hasStatEffect())
+        if (effect.hasStatEffect())
         {
-            target.statsStages += move.EnemyEffect;
-            capStatsStages(target.statsStages);
+            target.statsStages += effect;
+            if (target.statsStages.capStatsStages())
+            {
+                texts.Add("Nothing happened!");
+                return;
+            }
             target.applyStagesMultipliers();
-        }
-        if (move.SelfEffect.hasStatEffect())
-        {
-            user.statsStages += move.SelfEffect;
-            capStatsStages(user.statsStages);
-            user.applyStagesMultipliers();
+            texts.Add((target.isEnemy ? "Foe " : "") + target.name + "'s" + effect.stateStageModification());
         }
     }
 
@@ -408,9 +364,9 @@ public class FightSceneManager : MonoBehaviour {
         target.damageReceived = dmgs;
     }
 
-    private void moveProcess(APokemon user, APokemon target)
+    private void moveProcess(APokemon user, APokemon target, int moveSelected)
     {
-        Move usedMove = user.moves[currentSelection - 1];
+        Move usedMove = user.moves[moveSelected - 1];
 
         if (usedMove.use() == 0)
         {
@@ -425,8 +381,8 @@ public class FightSceneManager : MonoBehaviour {
         {
             return;
         }
-
-        moveStatsProcess(usedMove, user, target);
+        moveStatsProcess(usedMove.EnemyEffect, target);
+        moveStatsProcess(usedMove.SelfEffect, user);
         moveDamagesProcess(usedMove, user, target);
     }
 
@@ -442,26 +398,6 @@ public class FightSceneManager : MonoBehaviour {
             userAttack = userStats.attSpe;
             targetDefense = targetStats.defSpe;
         }
-    }
-
-    private void capStatsStages(Statistics s)
-    {
-        // add "Nothing happened !" dialogue
-        if (s.att > 6) s.att = 6;
-        if (s.def > 6) s.def = 6;
-        if (s.attSpe > 6) s.attSpe = 6;
-        if (s.defSpe > 6) s.defSpe = 6;
-        if (s.speed > 6) s.speed = 6;
-        if (s.evasion > 6) s.evasion = 6;
-        if (s.accuracy > 6) s.accuracy = 6;
-
-        if (s.att < -6) s.att = -6;
-        if (s.def < -6) s.def = -6;
-        if (s.attSpe < -6) s.attSpe = -6;
-        if (s.defSpe < -6) s.defSpe = -6;
-        if (s.speed < -6) s.speed = -6;
-        if (s.evasion < -6) s.evasion = -6;
-        if (s.accuracy < -6) s.accuracy = -6;
     }
 
     private void statusEffect(APokemon pokemon)
@@ -517,6 +453,51 @@ public class FightSceneManager : MonoBehaviour {
 
         return (stab * typeModifier * critical * other * Random.Range(0.85f, 1f));
     }
+
+	void Update () {
+        // block user input during dialogue
+        if (inDialogue)
+            return;
+        updateSelection();
+        controlStatus(player);
+        controlStatus(enemy);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            switch (currentMode)
+            {
+                case eMode.MENU:
+                    menuActions();
+                    break;
+
+                case eMode.FIGHT:
+                    print(player.currentStats.speed);
+                    print(enemy.currentStats.speed);
+                    if (player.currentStats.speed > enemy.currentStats.speed
+                        || (player.currentStats.speed == enemy.currentStats.speed
+                            && Random.Range(0, 100) < 50))
+                    {
+                        StartCoroutine(runTurn(player, enemy, currentSelection));
+                    }
+                    else
+                    {
+                        StartCoroutine(runTurn(enemy, player, currentSelection));
+                    }
+                    break;
+
+                default:
+                    print("Should not be here");
+                    break;
+            }
+            currentSelection = 1;
+        }
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            currentSelection = 1;
+            currentMode = eMode.MENU;
+        }
+        internalTime += Time.deltaTime;
+	}
+
 
     private void menuActions()
     {
