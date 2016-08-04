@@ -16,6 +16,11 @@ public class Move
     public float CriticalChanceModifier { get; private set; }
     public float Accuracy { get; private set; }
 
+    public MoveData moveData
+    {
+        get { return (new MoveData(this)); }
+    }
+
     // Adapt constructor
     public Move(string name, int pp, Statistics enemyEffect, Statistics selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance, float accuracy)
     {

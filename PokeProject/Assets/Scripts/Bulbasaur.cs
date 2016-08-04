@@ -4,6 +4,14 @@ using System;
 
 public class Bulbasaur : APokemon {
 
+    public Bulbasaur()
+    {
+    }
+
+    public Bulbasaur(PokemonData data) : base(data)
+    {
+    }
+
     public override int BaseLootExp { get { return (64); }}
     protected override eGrowthRate growthRate
     {
@@ -33,7 +41,7 @@ public class Bulbasaur : APokemon {
             return (1);
         }
     }
-    public override string name
+    public override string speciesName
     {
         get
         {

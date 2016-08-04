@@ -13,6 +13,11 @@ public class Statistics
     public float evasion;
     public float accuracy;
 
+    public Statistics()
+    {
+
+    }
+
     public Statistics(int hp, int att, int def, int attSpe, int defSpe, int speed, float evasion, float accuracy)
     {
         this.hp = hp;

@@ -26,6 +26,7 @@ public enum eStatus
 
 abstract public class APokemon
 {
+    // Not in gen I
     public enum eNature
     {
         bold,
@@ -59,6 +60,7 @@ abstract public class APokemon
         chlorophyll
         // TODO
     }
+
     public enum eGrowthRate
     {
         erratic,
@@ -69,18 +71,17 @@ abstract public class APokemon
         fluctuating
     }
 
-    // Base stats, constants
-    public abstract int BaseLootExp { get; }
-    protected abstract eGrowthRate growthRate { get; }
-    protected abstract Statistics baseStats { get; }
-    private Statistics Ivs;
-    protected abstract Statistics lootEvs { get; }
-
+    public Statistics Ivs { get; private set; }
 
     // Readonly ?
     // Pokedex data (same for one given Pokemon species)
+    public abstract int BaseLootExp { get; }
+    protected abstract eGrowthRate growthRate { get; }
+    protected abstract Statistics baseStats { get; }
+    protected abstract Statistics lootEvs { get; }
+
     public abstract int numberEntry { get; }
-    public abstract string name { get; }
+    public abstract string speciesName { get; }
     public abstract string species { get; }
     public abstract float height { get; }
     public abstract float weight { get; }
@@ -97,7 +98,7 @@ abstract public class APokemon
     // Statistics (different for each instance)
     public eStatus status;
     public Statistics stats;
-    private Statistics Evs;
+    public Statistics Evs { get; private set; }
     public eAbility ability
     {
         get
@@ -116,31 +117,48 @@ abstract public class APokemon
     public int exp = 0;
     public int lvl = 5;
     public int expThreshold;
-    
-    // In Fight
+    public string name;    
+
     public Statistics currentStats;
+
+    // In Fight only
     public Statistics statsStages;
     public int confusionTurns = 0;
     public int damageReceived = 0;
     public bool isEnemy = false;
+
+    public PokemonData pokemonData
+    {
+        get { return (new PokemonData(this)); }
+    }
 
     public APokemon()
     {
         setIv();
         Evs = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
         stats = new Statistics(baseStats);
-        updateStat(ref stats.hp, eStat.HP);
-        updateStat(ref stats.att, eStat.ATT);
-        updateStat(ref stats.def, eStat.DEF);
-        updateStat(ref stats.attSpe, eStat.ATTSPE);
-        updateStat(ref stats.defSpe, eStat.DEFSPE);
-        updateStat(ref stats.speed, eStat.SPEED);
+        updateAllStats();
         updateThreshold();
         currentStats = new Statistics(stats);
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
         Debug.Log(stats.ToString());
         gender = 2;
+        name = speciesName;
+    }
+
+    public APokemon(PokemonData data)
+    {
+        name = data.name;
+        Ivs = data.ivs;
+        Evs = data.evs;
+        currentStats = data.currentStats;
+        exp = data.exp;
+        lvl = data.lvl;
+        status = data.status;
+        updateAllStats();
+        updateThreshold();
+        // Recreate moves from names ? dictionary maybe
     }
 
     private void levelUp(int expGain)
@@ -150,13 +168,9 @@ abstract public class APokemon
         lvl++;
         exp = 0;
         int hpBefore = stats.hp;
-        updateStat(ref stats.hp, eStat.HP);
+        updateAllStats();
         currentStats.hp += (stats.hp - hpBefore);
-        updateStat(ref stats.att, eStat.ATT);
-        updateStat(ref stats.def, eStat.DEF);
-        updateStat(ref stats.attSpe, eStat.ATTSPE);
-        updateStat(ref stats.defSpe, eStat.DEFSPE);
-        updateStat(ref stats.speed, eStat.SPEED);
+        applyStagesMultipliers(); 
         updateThreshold();
         receiveExp(expGain);
     }
@@ -224,6 +238,15 @@ abstract public class APokemon
         }
     }
 
+    public void restoreCurrentStats()
+    {
+        currentStats.att = stats.att;
+        currentStats.def = stats.def;
+        currentStats.attSpe = stats.attSpe;
+        currentStats.defSpe = stats.defSpe;
+        currentStats.speed = stats.speed;
+    }
+
     public void applyStagesMultipliers()
     {
         currentStats.att = (int)(stats.att * FightSceneManager.stageMultipliers[statsStages.att]);
@@ -233,6 +256,16 @@ abstract public class APokemon
         currentStats.speed = (int)(stats.speed * FightSceneManager.stageMultipliers[statsStages.speed]);
         currentStats.evasion = (int)(100f * FightSceneManager.stageMultipliers[-(int)statsStages.evasion]);
         currentStats.accuracy = (int)(100f * FightSceneManager.stageMultipliers[(int)statsStages.accuracy]);
+    }
+
+    private void updateAllStats()
+    {
+        updateStat(ref stats.hp, eStat.HP);
+        updateStat(ref stats.att, eStat.ATT);
+        updateStat(ref stats.def, eStat.DEF);
+        updateStat(ref stats.attSpe, eStat.ATTSPE);
+        updateStat(ref stats.defSpe, eStat.DEFSPE);
+        updateStat(ref stats.speed, eStat.SPEED);
     }
 
     // Use formula from generation III

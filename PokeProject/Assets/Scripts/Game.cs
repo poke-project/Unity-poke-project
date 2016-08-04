@@ -11,11 +11,14 @@ public class Game
 
 	[XmlArray(ElementName = "GameObjects")]
 	public List<ObjectData> objects;
+    public Party party;
 
     [XmlIgnore]
     public Dictionary<string, Object> prefabDic;
     [XmlIgnore]
     private Transform objsTransform;
+
+
 
     public static Game Instance
 	{
@@ -40,7 +43,8 @@ public class Game
 		{
 			prefabDic.Add(o.name, o);
 		}
-        objsTransform = GameObject.Find("objs").transform;
+        objsTransform = GameObject.Find("map").transform;
+        party = Object.FindObjectOfType<Player>().party;
 	}
 
 	
@@ -64,20 +68,18 @@ public class Game
 		// Instantiate and place objects according to xml save
 		foreach (ObjectData objData in objects)
 		{
+            Debug.Log(objData.pos);
             if (prefabDic.ContainsKey(objData.prefabName))
             {
                 GameObject go;
+                // May be useless
                 if (objData.tag != "Player")
                 {
                     go = (GameObject)GameObject.Instantiate(prefabDic[objData.prefabName]);
                     go.transform.parent = objsTransform;
                     go.transform.position = objData.pos;
                     go.transform.eulerAngles = objData.rot;
-                    int index = go.name.LastIndexOf('(');
-                    if (index != -1)
-                    {
-                        go.name = go.name.Substring(0, index);
-                    }
+                    go.name = removeBrackets(go.name);
                 }
                 else
                 {
@@ -85,6 +87,16 @@ public class Game
             }
 		}
 	}
+
+    private string removeBrackets(string s)
+    {
+        int index = s.LastIndexOf('(');
+        if (index != -1)
+        {
+            return (s.Substring(0, index));
+        }
+        return (s);
+    }
 
 	public void restoreManagers()
 	{

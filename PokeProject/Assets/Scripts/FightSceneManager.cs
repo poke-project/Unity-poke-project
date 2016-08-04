@@ -30,6 +30,7 @@ public class FightSceneManager : MonoBehaviour {
         }
         private set { }
     }
+    private Player playerData;
     public APokemon player;
     public APokemon enemy;
     public Dictionary<string, Sprite> numbers;
@@ -54,12 +55,14 @@ public class FightSceneManager : MonoBehaviour {
     {
         instance = this;
 
+        playerData = FindObjectOfType<Player>();
+
         loadNumbersInDic();
         loadStatusInDic();
         blank = Resources.Load<Sprite>("Sprites/blank");
 
         // For test purpose
-        player = new Bulbasaur();
+        player = playerData.party.getFirstPokemonReady();
 
         // REMOVE
         player.currentStats.speed *= 2;
@@ -452,6 +455,7 @@ public class FightSceneManager : MonoBehaviour {
         return (stab * typeModifier * critical * other * Random.Range(0.85f, 1f));
     }
 
+    // Restore stats when fight ends
 	void Update () {
         // block user input during dialogue
         if (inDialogue)
@@ -517,8 +521,8 @@ public class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.RUN:
+                player.restoreCurrentStats();
                 Application.LoadLevel("ImplementBasicAction");
-                print("RUN");
                 break;
 
             default:
