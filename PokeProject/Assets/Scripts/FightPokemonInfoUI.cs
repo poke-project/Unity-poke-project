@@ -19,6 +19,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private Image maxSecondDigit;
     private Image maxThirdDigit;
     private Text pokemonName;
+    private Text level;
     private Dictionary<string, Sprite> numbers;
     private Dictionary<string, Sprite> status;
     private Sprite blank;
@@ -43,6 +44,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
         barImage = hpBar.transform.Find("HP").GetComponent<Image>();
         pokemonImage = transform.Find("Sprite").GetComponent<Image>();
         pokemonName = frame.transform.Find("Name").GetComponent<Text>();
+        level = frame.transform.Find("Level").GetComponent<Text>();
         if (isPlayer)
         {
             Transform currentHpText = frame.transform.Find("Hp text").Find("Current hp");
@@ -99,6 +101,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
     {
         updateHpBar();
         updateStatus();
+        updateLevel();
         if (isPlayer)
         {
             updateExp();
@@ -115,6 +118,11 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private void updateName()
     {
         pokemonName.text = pokemon.name;
+    }
+
+    private void updateLevel()
+    {
+        level.text = pokemon.lvl.ToString();
     }
 
     private int getDigit(int number, int digit)

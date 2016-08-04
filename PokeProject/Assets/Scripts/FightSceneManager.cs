@@ -213,8 +213,6 @@ public class FightSceneManager : MonoBehaviour {
         return (exp);
     }
 
-
-
     // Remove after test
     private void controlStatus(APokemon pokemon)
     {
