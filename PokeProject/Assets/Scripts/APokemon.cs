@@ -127,10 +127,7 @@ abstract public class APokemon
     public int damageReceived = 0;
     public bool isEnemy = false;
 
-    public PokemonData pokemonData
-    {
-        get { return (new PokemonData(this)); }
-    }
+    public PokemonData pokemonData;
 
     public APokemon()
     {
@@ -149,6 +146,13 @@ abstract public class APokemon
 
     public APokemon(PokemonData data)
     {
+        if (data == null)
+        {
+            Debug.Log("efwjiefw");
+        }
+        Debug.Log(data.name);
+        Debug.Log(data.ivs.ToString());
+        stats = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
         name = data.name;
         Ivs = data.ivs;
         Evs = data.evs;

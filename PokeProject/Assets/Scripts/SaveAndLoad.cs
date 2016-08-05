@@ -48,14 +48,14 @@ public class SaveAndLoad : MonoBehaviour {
     private void SerializeGame(Stream fs, Game obj)
     {
         XmlWriter xmlWriter = XmlWriter.Create(fs, xmlSettings);
-        XmlSerializer xs = new XmlSerializer(typeof(Game));
-        xs.Serialize(xmlWriter, obj);
+        XmlSerializer xs = new XmlSerializer(typeof(GameData));
+        xs.Serialize(xmlWriter, obj.gameData);
         xmlWriter.Close();
     }
 
     private object DeserializeString(string xmlizedString)
     {
-        XmlSerializer xs = new XmlSerializer(typeof(Game));
+        XmlSerializer xs = new XmlSerializer(typeof(GameData));
         MemoryStream memoryStream = new MemoryStream(StringToUTF8ByteArray(xmlizedString));
         return (xs.Deserialize(memoryStream));
     }
@@ -67,12 +67,13 @@ public class SaveAndLoad : MonoBehaviour {
         r.Close();
         if (data != "")
         {
-            myGame = (Game)DeserializeString(data);
-            myGame.createObjects();
+            print(myGame.GetHashCode());
+            print(Game.Instance.GetHashCode());
+            GameData gameData = ((GameData)DeserializeString(data));
+            myGame.loadFromData(gameData);
+            /*myGame.createObjects();
             myGame.restoreManagers();
-            // ICI C POURRI
-            myGame.party = new Party(myGame.party.partyData);
-            print(myGame.party.toto);
+            myGame.party.loadFromData();*/
         }
     }
 
@@ -85,6 +86,7 @@ public class SaveAndLoad : MonoBehaviour {
     public void saveGame()
     {
         myGame.saveCurrentObjects();
+        myGame.setData();
         Stream myStream = new FileStream(savesLocation + "/" + PersistentData.instance.fileName, FileMode.Create);
         if (myStream != null && myStream.CanWrite)
         {
@@ -104,6 +106,8 @@ public class SaveAndLoad : MonoBehaviour {
     
     void Update()
     {
+        print(myGame.party.ToString());
+        print(Game.Instance.party.ToString());
     }
 
 

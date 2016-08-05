@@ -3,11 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml; 
 using System.Xml.Serialization;
+using System.Runtime.Serialization;
+
+public class GameData
+{
+    [XmlArray(ElementName = "GameObjects")]
+    public List<ObjectData> objects;
+    public PartyData partyData;
+
+    public GameData() { }
+
+    public GameData(Game game)
+    {
+        objects = game.objects;
+        partyData = new PartyData(game.party);
+    }
+}
 
 // Class holding the game's data
 public class Game
 {
 	private static Game	instance;
+
+    public GameData gameData;
 
 	[XmlArray(ElementName = "GameObjects")]
 	public List<ObjectData> objects;
@@ -18,7 +36,16 @@ public class Game
     [XmlIgnore]
     private Transform objsTransform;
 
+    public void setData()
+    {
+        gameData = new GameData(this);
+    }
 
+    public void loadFromData(GameData data)
+    {
+        objects = data.objects;
+        party.loadFromData(data.partyData);
+    }
 
     public static Game Instance
 	{
@@ -28,12 +55,11 @@ public class Game
 			{
 				instance = new Game();
 			}
-			return instance;
+			return (instance);
 		}
 	}
 
-
-	private Game()
+    private Game()
 	{
         prefabDic = new Dictionary<string, Object>();
         objects = new List<ObjectData>();
@@ -44,7 +70,7 @@ public class Game
 			prefabDic.Add(o.name, o);
 		}
         objsTransform = GameObject.Find("map").transform;
-        party = Object.FindObjectOfType<Player>().party;
+        party = new Party();
 	}
 
 	

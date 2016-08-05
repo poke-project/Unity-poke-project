@@ -17,10 +17,11 @@ public class Player : MonoBehaviour {
         if (firstAwake)
         {
             // Should load party from file
-            party = new Party();
-            party.addPokemonInParty(new Bulbasaur());
+            //party = new Party();
+            //party = Party.Instance;
             firstAwake = false;
         }
+        //party = Party.Instance;
     }
 
 	void Start ()
@@ -35,7 +36,9 @@ public class Player : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-            print(party.ToString());
+       //     party = Game.Instance.party;
+            //print(Game.Instance.party.ToString());
+      //      print(party.ToString());
         }
 	}
 }

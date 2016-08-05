@@ -5,33 +5,51 @@ using System.Xml.Serialization;
 
 public class Party
 {
+    /*private static Party instance;
+    public static Party Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = new Party();
+            }
+            return (instance);
+        }
+    }*/
+
     [XmlIgnore]
     public APokemon[] pokemons;
     [XmlIgnore]
     public int nbInParty;
 
-    public int toto;
-    public PartyData partyData
-    {
-        get { return (new PartyData(this)); }
-        set { }
-    }
+    //public PartyData partyData { get; private set; }
 
     public Party()
     {
         pokemons = new APokemon[6];
         nbInParty = 0;
+        addPokemonInParty(new Bulbasaur());
     }
 
-    public Party(PartyData data)
+    public void loadFromData(PartyData data)
     {
-        Debug.Log("IIICCIII");
+        Debug.Log("Load from data");
         nbInParty = data.pokemons.Length;
         pokemons = new APokemon[nbInParty];
         for (int i = 0; i < nbInParty; ++i)
         {
             pokemons[i] = new Bulbasaur(data.pokemons[i]);
-            Debug.Log(pokemons[i].currentStats.hp);
+        }
+    }
+
+    public Party(PartyData data)
+    {
+        nbInParty = data.pokemons.Length;
+        pokemons = new APokemon[nbInParty];
+        for (int i = 0; i < nbInParty; ++i)
+        {
+            pokemons[i] = new Bulbasaur(data.pokemons[i]);
         }
     }
     
