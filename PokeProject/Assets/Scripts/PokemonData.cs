@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class PokemonData
+public class PokemonData : IData
 {
     public string name;
     public string species;
@@ -19,6 +19,12 @@ public class PokemonData
 
     public PokemonData(APokemon pokemon)
     {
+        populate(pokemon);
+    }
+
+    public void populate(IMySerializable source)
+    {
+        APokemon pokemon = (APokemon)source;
         name = pokemon.name;
         species = pokemon.GetType().ToString();
         ivs = pokemon.Ivs;
@@ -35,7 +41,7 @@ public class PokemonData
         {
             if (move != null)
             {
-                moves.Add(move.moveData);
+                moves.Add(new MoveData(move));
             }
         }
     }

@@ -17,7 +17,7 @@ public class ObjectData
 	{
 		pos = go.transform.position;
         rot = go.transform.eulerAngles;
-        prefabName = go.GetComponent<IMySerializable>().prefabName;
+        //prefabName = go.GetComponent<IMySerializable>().prefabName;
 		name = go.name;
 		tag = go.tag;
 	}

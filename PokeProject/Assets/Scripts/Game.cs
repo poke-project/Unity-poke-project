@@ -41,6 +41,7 @@ public class Game
         gameData = new GameData(this);
     }
 
+    // Call loadFromData for each serialized attribute
     public void loadFromData(GameData data)
     {
         objects = data.objects;
@@ -72,7 +73,6 @@ public class Game
         objsTransform = GameObject.Find("map").transform;
         party = new Party();
 	}
-
 	
 	public void	saveCurrentObjects()
 	{

@@ -16,8 +16,6 @@ public class Player : MonoBehaviour {
         }
         if (firstAwake)
         {
-            // Should load party from file
-            //party = new Party();
             //party = Party.Instance;
             firstAwake = false;
         }
@@ -26,6 +24,7 @@ public class Player : MonoBehaviour {
 
 	void Start ()
     {
+        party = Game.Instance.party;
 	}
 	
 	void Update ()
@@ -36,9 +35,7 @@ public class Player : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-       //     party = Game.Instance.party;
-            //print(Game.Instance.party.ToString());
-      //      print(party.ToString());
+            print(party.ToString());
         }
 	}
 }

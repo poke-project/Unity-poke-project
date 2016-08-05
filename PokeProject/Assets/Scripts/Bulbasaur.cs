@@ -27,7 +27,7 @@ public class Bulbasaur : APokemon {
             return (new Statistics(45, 49, 49, 65, 65, 45, 100, 100));
         }
     }
-    protected override Statistics lootEvs
+    public override Statistics lootEvs
     {
         get
         {

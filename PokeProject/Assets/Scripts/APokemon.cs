@@ -24,7 +24,7 @@ public enum eStatus
 }
 
 
-abstract public class APokemon
+abstract public class APokemon : IMySerializable
 {
     // Not in gen I
     public enum eNature
@@ -78,7 +78,7 @@ abstract public class APokemon
     public abstract int BaseLootExp { get; }
     protected abstract eGrowthRate growthRate { get; }
     protected abstract Statistics baseStats { get; }
-    protected abstract Statistics lootEvs { get; }
+    public abstract Statistics lootEvs { get; }
 
     public abstract int numberEntry { get; }
     public abstract string speciesName { get; }
@@ -127,8 +127,6 @@ abstract public class APokemon
     public int damageReceived = 0;
     public bool isEnemy = false;
 
-    public PokemonData pokemonData;
-
     public APokemon()
     {
         setIv();
@@ -146,20 +144,21 @@ abstract public class APokemon
 
     public APokemon(PokemonData data)
     {
-        if (data == null)
-        {
-            Debug.Log("efwjiefw");
-        }
-        Debug.Log(data.name);
-        Debug.Log(data.ivs.ToString());
+        loadFromData(data);
+        Debug.Log("Max stat " + stats.ToString());
+    }
+
+    public void loadFromData(IData data)
+    {
+        PokemonData pokemonData = (PokemonData)data;
         stats = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
-        name = data.name;
-        Ivs = data.ivs;
-        Evs = data.evs;
-        currentStats = data.currentStats;
-        exp = data.exp;
-        lvl = data.lvl;
-        status = data.status;
+        name = pokemonData.name;
+        Ivs = pokemonData.ivs;
+        Evs = pokemonData.evs;
+        currentStats = pokemonData.currentStats;
+        exp = pokemonData.exp;
+        lvl = pokemonData.lvl;
+        status = pokemonData.status;
         updateAllStats();
         updateThreshold();
         // Recreate moves from names ? dictionary maybe
@@ -296,6 +295,32 @@ abstract public class APokemon
         {
             levelUp(exp - expThreshold);
         }
+    }
+
+    public void receiveEvs(Statistics evsGain)
+    {
+        int diff = 510 - getTotalEvs();
+        if (diff > 0)
+        {
+            addEvWithCap(ref Evs.hp, evsGain.hp, diff);
+            addEvWithCap(ref Evs.att, evsGain.att, diff);
+            addEvWithCap(ref Evs.def, evsGain.def, diff);
+            addEvWithCap(ref Evs.attSpe, evsGain.attSpe, diff);
+            addEvWithCap(ref Evs.defSpe, evsGain.defSpe, diff);
+            addEvWithCap(ref Evs.speed, evsGain.speed, diff);
+        }
+    }
+
+    private void addEvWithCap(ref int ev, int gain, int diff)
+    {
+        if (gain > diff) gain = diff;
+        int sum = ev + gain;
+        ev = sum > 255 ? 255 : sum;
+    }
+
+    private int getTotalEvs()
+    {
+        return (Evs.hp + Evs.att + Evs.def + Evs.attSpe + Evs.defSpe + Evs.speed);
     }
 
     private int getEvForStat(eStat statType)

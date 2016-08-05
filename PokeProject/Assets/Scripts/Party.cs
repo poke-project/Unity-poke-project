@@ -3,27 +3,12 @@ using System.Collections;
 using System;
 using System.Xml.Serialization;
 
-public class Party
+public class Party : IMySerializable
 {
-    /*private static Party instance;
-    public static Party Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = new Party();
-            }
-            return (instance);
-        }
-    }*/
-
     [XmlIgnore]
     public APokemon[] pokemons;
     [XmlIgnore]
     public int nbInParty;
-
-    //public PartyData partyData { get; private set; }
 
     public Party()
     {
@@ -32,25 +17,21 @@ public class Party
         addPokemonInParty(new Bulbasaur());
     }
 
-    public void loadFromData(PartyData data)
+    public void loadFromData(IData data)
     {
+        PartyData partyData = (PartyData)data;
         Debug.Log("Load from data");
-        nbInParty = data.pokemons.Length;
+        nbInParty = partyData.pokemons.Length;
         pokemons = new APokemon[nbInParty];
         for (int i = 0; i < nbInParty; ++i)
         {
-            pokemons[i] = new Bulbasaur(data.pokemons[i]);
+            pokemons[i] = new Bulbasaur(partyData.pokemons[i]);
         }
     }
 
     public Party(PartyData data)
     {
-        nbInParty = data.pokemons.Length;
-        pokemons = new APokemon[nbInParty];
-        for (int i = 0; i < nbInParty; ++i)
-        {
-            pokemons[i] = new Bulbasaur(data.pokemons[i]);
-        }
+        loadFromData(data);
     }
     
     public void addPokemonInParty(APokemon newPokemon)

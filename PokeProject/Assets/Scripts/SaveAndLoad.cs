@@ -14,7 +14,6 @@ public class SaveAndLoad : MonoBehaviour {
     [HideInInspector]
     public string savesLocation;
 
-
     void Awake()
     {
         savesLocation = UnityEngine.Application.dataPath + "/Resources/Saves";
@@ -35,8 +34,6 @@ public class SaveAndLoad : MonoBehaviour {
             readLevel();
         }
     }
-
-
 
     private byte[] StringToUTF8ByteArray(string xmlString)
     {
@@ -67,13 +64,10 @@ public class SaveAndLoad : MonoBehaviour {
         r.Close();
         if (data != "")
         {
-            print(myGame.GetHashCode());
-            print(Game.Instance.GetHashCode());
             GameData gameData = ((GameData)DeserializeString(data));
             myGame.loadFromData(gameData);
-            /*myGame.createObjects();
+            myGame.createObjects();
             myGame.restoreManagers();
-            myGame.party.loadFromData();*/
         }
     }
 
@@ -85,12 +79,11 @@ public class SaveAndLoad : MonoBehaviour {
 
     public void saveGame()
     {
-        myGame.saveCurrentObjects();
+        //myGame.saveCurrentObjects();
         myGame.setData();
         Stream myStream = new FileStream(savesLocation + "/" + PersistentData.instance.fileName, FileMode.Create);
         if (myStream != null && myStream.CanWrite)
         {
-            print(myGame.party.ToString());
             SerializeGame(myStream, myGame);
             myStream.Close();
         }
@@ -106,8 +99,6 @@ public class SaveAndLoad : MonoBehaviour {
     
     void Update()
     {
-        print(myGame.party.ToString());
-        print(Game.Instance.party.ToString());
     }
 
 

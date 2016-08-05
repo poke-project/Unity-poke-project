@@ -186,6 +186,9 @@ public class FightSceneManager : MonoBehaviour {
         yield return StartCoroutine(waitForEndDialogue((pokemon.isEnemy ? "Foe " : "") + pokemon.name + " fainted!"));
         if (pokemon.isEnemy)
         {
+            print(player.Evs.ToString());
+            player.receiveEvs(pokemon.lootEvs);
+            print(player.Evs.ToString());
             int expGain = findExpGain(pokemon);
             expGain = 5000;
             print(expGain);

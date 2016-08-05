@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Move
+public class Move : IMySerializable
 {
     public string MoveName { get; private set; }
     public int MaxPP { get; private set; }
@@ -16,11 +16,6 @@ public class Move
     public float CriticalChanceModifier { get; private set; }
     public float Accuracy { get; private set; }
 
-    public MoveData moveData
-    {
-        get { return (new MoveData(this)); }
-    }
-
     // Adapt constructor
     public Move(string name, int pp, Statistics enemyEffect, Statistics selfEffect, eStatus enemyStatus, eStatus selfStatus, AType type, float critChance, float accuracy)
     {
@@ -34,6 +29,19 @@ public class Move
         Type = type;
         CriticalChanceModifier = critChance;
         Accuracy = accuracy;
+    }
+    
+    public Move(MoveData data)
+    {
+        loadFromData(data);
+    }
+
+    public void loadFromData(IData data)
+    {
+        MoveData moveData = (MoveData)data;
+        CurrentPP = moveData.pp;
+        MoveName = moveData.name;
+        // CREATE MOVE FROM THIS ?? GL HF
     }
 
     public int use()
