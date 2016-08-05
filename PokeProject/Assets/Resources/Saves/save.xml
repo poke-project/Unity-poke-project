@@ -7,12 +7,12 @@
         <name>Bulbasaur</name>
         <species>Bulbasaur</species>
         <ivs>
-          <hp>31</hp>
-          <att>14</att>
-          <def>3</def>
-          <attSpe>5</attSpe>
-          <defSpe>24</defSpe>
-          <speed>1</speed>
+          <hp>7</hp>
+          <att>15</att>
+          <def>18</def>
+          <attSpe>12</attSpe>
+          <defSpe>14</defSpe>
+          <speed>17</speed>
           <evasion>0</evasion>
           <accuracy>0</accuracy>
         </ivs>
@@ -27,12 +27,12 @@
           <accuracy>0</accuracy>
         </evs>
         <currentStats>
-          <hp>21</hp>
+          <hp>8</hp>
           <att>10</att>
           <def>10</def>
-          <attSpe>11</attSpe>
+          <attSpe>12</attSpe>
           <defSpe>12</defSpe>
-          <speed>9</speed>
+          <speed>20</speed>
           <evasion>100</evasion>
           <accuracy>100</accuracy>
         </currentStats>
@@ -42,7 +42,7 @@
         <moves>
           <MoveData>
             <name>Tackle</name>
-            <pp>35</pp>
+            <pp>34</pp>
           </MoveData>
           <MoveData>
             <name>blabla</name>
