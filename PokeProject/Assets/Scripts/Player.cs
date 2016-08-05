@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour {
-
-    public Party party;
+public class Player : MonoBehaviour
+{
+    public Trainer trainer;
     private static bool firstAwake = true;
 
     void Awake()
@@ -14,17 +14,13 @@ public class Player : MonoBehaviour {
         {
             Destroy(gameObject);
         }
-        if (firstAwake)
-        {
-            //party = Party.Instance;
-            firstAwake = false;
-        }
-        //party = Party.Instance;
+        trainer = new Trainer();
+        // poor as fuck
+        trainer.money = 0;
     }
 
 	void Start ()
     {
-        party = Game.Instance.party;
 	}
 	
 	void Update ()
@@ -35,7 +31,19 @@ public class Player : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-            print(party.ToString());
+            print(trainer.party.ToString());
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            Item potion = new Item("Potion");
+            Item pokeball = new Item("Pokeball");
+            Item tgtgtg = new Item("TGTGTG");
+            for (int i = 0; i < 300; ++i)
+            {
+                trainer.bag.addItem(potion);
+                trainer.bag.addItem(pokeball);
+                trainer.bag.addItem(tgtgtg);
+            }
         }
 	}
 }

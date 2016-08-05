@@ -73,7 +73,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
         blank = FightSceneManager.instance.blank;
         if (isPlayer)
         {
-            pokemon = FightSceneManager.instance.player;
+            pokemon = FightSceneManager.instance.playerPkmn;
             // Set text for max hp
             pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Back/" + pokemon.name);
             xpBar.maxValue = pokemon.expThreshold;

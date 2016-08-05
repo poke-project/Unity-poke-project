@@ -17,21 +17,8 @@ public partial class FightSceneManager : MonoBehaviour {
 
     public static FightSceneManager instance;
 
-    public static Dictionary<int, float> stageMultipliers
-    {
-        get
-        {
-            return (new Dictionary<int, float>()
-            {
-                { -6, 0.25f }, { -5, 0.28f }, { -4, 0.33f }, { -3, 0.4f }, { -2, 0.5f }, { -1, 0.6f },
-                { 0, 1f },
-                { 1, 1.5f }, { 2, 2f }, { 3, 2.5f }, { 4, 3f }, { 5, 3.5f }, { 6, 4f }
-            });
-        }
-        private set { }
-    }
-    private Player playerData;
-    public APokemon player;
+    private Player player;
+    public APokemon playerPkmn;
     public APokemon enemy;
     public Dictionary<string, Sprite> numbers;
     public Dictionary<string, Sprite> status;
@@ -50,29 +37,31 @@ public partial class FightSceneManager : MonoBehaviour {
     private bool inDialogue;
     private float nbParticipatedPokemon;
     private string prefix;
+    int nbEnemyLeft;
 
     void Awake()
     {
         instance = this;
 
-        playerData = FindObjectOfType<Player>();
+        player = FindObjectOfType<Player>();
 
         loadNumbersInDic();
         loadStatusInDic();
         blank = Resources.Load<Sprite>("Sprites/blank");
 
         // For test purpose
-        player = playerData.party.getFirstPokemonReady();
+        playerPkmn = player.trainer.party.getFirstPokemonReady();
 
         // REMOVE
-        player.currentStats.speed *= 2;
-        player.stats.speed *= 2;
+        playerPkmn.currentStats.speed *= 2;
+        playerPkmn.stats.speed *= 2;
         // END REMOVE
 
-        player.initInBattleStats();
+        playerPkmn.initInBattleStats();
         enemy = new Bulbasaur();
         enemy.initInBattleStats();
         enemy.isEnemy = true;
+        nbEnemyLeft = 1;
         currentSelection = 1;
         currentMode = eMode.MENU;
         internalTime = 0.0f;
@@ -121,11 +110,11 @@ public partial class FightSceneManager : MonoBehaviour {
         {
             if (expGain >= expChunk)
             {
-                player.receiveExp(expChunk);
+                playerPkmn.receiveExp(expChunk);
             }
             else
             {
-                player.receiveExp(expGain);
+                playerPkmn.receiveExp(expGain);
             }
             expGain -= expChunk;
             yield return null;
@@ -171,19 +160,28 @@ public partial class FightSceneManager : MonoBehaviour {
         yield return StartCoroutine(waitForEndDialogue((pokemon.isEnemy ? "Foe " : "") + pokemon.name + " fainted!"));
         if (pokemon.isEnemy)
         {
-            print(player.Evs.ToString());
-            player.receiveEvs(pokemon.lootEvs);
-            print(player.Evs.ToString());
+            print(playerPkmn.Evs.ToString());
+            playerPkmn.receiveEvs(pokemon.lootEvs);
+            print(playerPkmn.Evs.ToString());
             int expGain = findExpGain(pokemon);
             expGain = 5000;
             print(expGain);
-            texts.Add(player.name + " gained " + expGain.ToString() + " EXP. Points!");
+            texts.Add(playerPkmn.name + " gained " + expGain.ToString() + " EXP. Points!");
             yield return StartCoroutine(startDialogue());
             yield return StartCoroutine(updateXp(expGain));
+            nbEnemyLeft--;
         }
         else
         {
-            // Choose other pokemon
+            if (player.trainer.party.getFirstPokemonReady() == null)
+            {
+                //TAPETTE
+                player.trainer.money /= 2;
+            }
+            else
+            {
+                // Choose other pokemon
+            }
         }
         endTurn();
         yield return null;
@@ -244,7 +242,7 @@ public partial class FightSceneManager : MonoBehaviour {
         if (inDialogue)
             return;
         updateSelection();
-        controlStatus(player);
+        controlStatus(playerPkmn);
         controlStatus(enemy);
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -255,17 +253,17 @@ public partial class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    print(player.currentStats.speed);
+                    print(playerPkmn.currentStats.speed);
                     print(enemy.currentStats.speed);
-                    if (player.currentStats.speed > enemy.currentStats.speed
-                        || (player.currentStats.speed == enemy.currentStats.speed
+                    if (playerPkmn.currentStats.speed > enemy.currentStats.speed
+                        || (playerPkmn.currentStats.speed == enemy.currentStats.speed
                             && Random.Range(0, 100) < 50))
                     {
-                        StartCoroutine(runTurn(player, enemy, currentSelection));
+                        StartCoroutine(runTurn(playerPkmn, enemy, currentSelection));
                     }
                     else
                     {
-                        StartCoroutine(runTurn(enemy, player, currentSelection));
+                        StartCoroutine(runTurn(enemy, playerPkmn, currentSelection));
                     }
                     break;
 
@@ -274,6 +272,10 @@ public partial class FightSceneManager : MonoBehaviour {
                     break;
             }
             currentSelection = 1;
+        }
+        if (nbEnemyLeft == 0)
+        {
+            exitFight();
         }
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
@@ -304,8 +306,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.RUN:
-                player.restoreCurrentStats();
-                Application.LoadLevel("ImplementBasicAction");
+                exitFight();
                 break;
 
             default:
@@ -313,6 +314,12 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
         }
         currentMode = (eMode)currentSelection;
+    }
+
+    private void exitFight()
+    {
+        playerPkmn.restoreCurrentStats();
+        Application.LoadLevel("ImplementBasicAction");
     }
 
     private void updateSelection()
@@ -336,7 +343,7 @@ public partial class FightSceneManager : MonoBehaviour {
         }
         if (nextSelection > 0 && nextSelection <= 4)
         {
-            if (!(currentMode == eMode.FIGHT && player.moves[nextSelection - 1] == null))
+            if (!(currentMode == eMode.FIGHT && playerPkmn.moves[nextSelection - 1] == null))
             {
                 currentSelection = nextSelection;
             }

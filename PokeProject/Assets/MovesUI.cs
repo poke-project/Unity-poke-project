@@ -11,7 +11,7 @@ public class MovesUI : MonoBehaviour {
     private Transform moveDescription;
 
     private int selected;
-    private APokemon player;
+    private APokemon playerPkmn;
 
     void Awake()
     {
@@ -26,12 +26,12 @@ public class MovesUI : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        player = FightSceneManager.instance.player;
+        playerPkmn = FightSceneManager.instance.playerPkmn;
         for (int i = 0; i < 4; ++i)
         {
-            if (player.moves[i] != null)
+            if (playerPkmn.moves[i] != null)
             {
-                movesName[i].text = player.moves[i].MoveName;
+                movesName[i].text = playerPkmn.moves[i].MoveName;
             }
             else
             {
@@ -44,8 +44,8 @@ public class MovesUI : MonoBehaviour {
 	void Update ()
     {
         selected = FightSceneManager.instance.currentSelection;
-        currentPP.text = player.moves[selected - 1].CurrentPP.ToString();
-        maxPP.text = player.moves[selected - 1].MaxPP.ToString();
-        type.text = player.moves[selected - 1].Type.ToString();
+        currentPP.text = playerPkmn.moves[selected - 1].CurrentPP.ToString();
+        maxPP.text = playerPkmn.moves[selected - 1].MaxPP.ToString();
+        type.text = playerPkmn.moves[selected - 1].Type.ToString();
 	}
 }

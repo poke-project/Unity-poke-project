@@ -30,6 +30,8 @@ public class Game
 	[XmlArray(ElementName = "GameObjects")]
 	public List<ObjectData> objects;
     public Party party;
+    [XmlIgnore]
+    public Player player;
 
     [XmlIgnore]
     public Dictionary<string, Object> prefabDic;
@@ -71,7 +73,8 @@ public class Game
 			prefabDic.Add(o.name, o);
 		}
         objsTransform = GameObject.Find("map").transform;
-        party = new Party();
+        player = Object.FindObjectOfType<Player>();
+        party = player.trainer.party;
 	}
 	
 	public void	saveCurrentObjects()
