@@ -35,15 +35,30 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            Item potion = new Item("Potion");
-            Item pokeball = new Item("Pokeball");
-            Item tgtgtg = new Item("TGTGTG");
-            for (int i = 0; i < 300; ++i)
-            {
-                trainer.bag.addItem(potion);
-                trainer.bag.addItem(pokeball);
-                trainer.bag.addItem(tgtgtg);
-            }
+            Item a = new Item("a");
+            Item b = new Item("b");
+            Item c = new Item("c");
+            Item d = new Item("d");
+            Item e = new Item("e");
+            Item f = new Item("f");
+            Item g = new Item("g");
+            Item h = new Item("h");
+            Item i = new Item("i");
+            Item j = new Item("j");
+            Item k = new Item("k");
+            Item l = new Item("l");
+            trainer.bag.addItem(a);
+            trainer.bag.addItem(b);
+            trainer.bag.addItem(c);
+            trainer.bag.addItem(d);
+            trainer.bag.addItem(e);
+            trainer.bag.addItem(f);
+            trainer.bag.addItem(g);
+            trainer.bag.addItem(h);
+            trainer.bag.addItem(i);
+            trainer.bag.addItem(j);
+            trainer.bag.addItem(k);
+            trainer.bag.addItem(l);
         }
 	}
 }
