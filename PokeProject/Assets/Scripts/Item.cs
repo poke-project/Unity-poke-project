@@ -25,6 +25,7 @@ public class Item
 
     public void use()
     {
+        Debug.Log(name + " used !");
         Debug.Log("Do stuff");
     }
 }

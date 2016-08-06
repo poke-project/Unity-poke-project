@@ -32,6 +32,17 @@ public class BagManager : MonoBehaviour {
     {
         nbItems = bag.items.Count;
         updateSelection();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (cancelSelected)
+            {
+                enabled = false;
+            }
+            else
+            {
+                bag.items[selection].use();
+            }
+        }
 	}
 
     private void updateSelection()

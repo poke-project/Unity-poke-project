@@ -59,6 +59,7 @@ public class Player : MonoBehaviour
             trainer.bag.addItem(j);
             trainer.bag.addItem(k);
             trainer.bag.addItem(l);
+            BagManager.instance.enabled = true;
         }
 	}
 }

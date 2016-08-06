@@ -9,19 +9,32 @@ public class GameManager : MonoBehaviour {
     public Game game;
     [HideInInspector]
     public PersistentData persistentData;
+    [HideInInspector]
+    public bool inMenu;
 
+    [SerializeField]
+    private GameObject UIManager;
+
+    void Awake()
+    {
+    }
+    
 	// Use this for initialization
 	void Start ()
     {
         instance = this;
         game = Game.Instance;
         persistentData = GameObject.Find("PersistentData").GetComponent<PersistentData>();
+        inMenu = false;
 	}
 	
 	// Update is called once per frame
 	void Update ()
     {
-	
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            inMenu = !inMenu;
+        }
 	}
 
     public void checkEncounter()

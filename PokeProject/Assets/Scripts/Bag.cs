@@ -38,7 +38,7 @@ public class Bag
         }
     }
 
-    public void useItem(Item item)
+    public void removeItem(Item item)
     {
         int indexLessHeld = 0;
         int min = 100;
@@ -58,5 +58,11 @@ public class Bag
         {
             items.RemoveAt(indexLessHeld);
         }
+    }
+
+    public void useItem(Item item)
+    {
+        item.use();
+        removeItem(item);
     }
 }

@@ -31,6 +31,12 @@ public class BagUI : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        // this way or whole UI manager
+        if (bagManager.enabled == false)
+        {
+            gameObject.SetActive(false);
+        }
+
         if (bag.items.Count == 0)
         {
             texts[0].text = "Cancel";
