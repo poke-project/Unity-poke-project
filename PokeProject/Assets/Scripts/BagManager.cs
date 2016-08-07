@@ -11,11 +11,12 @@ public class BagManager : MonoBehaviour {
     public int cursorPos;
     [HideInInspector]
     public int nbItems;
-
+    [HideInInspector]
+    public bool cancelSelected;
+ 
     public Bag bag;
 
-    private bool cancelSelected;
-    private int maxDisplay;
+   private int maxDisplay;
 
     void Awake()
     {

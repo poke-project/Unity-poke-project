@@ -19,7 +19,8 @@ public partial class FightSceneManager : MonoBehaviour {
 
     private Player player;
     public APokemon playerPkmn;
-    public APokemon enemy;
+    public Trainer enemy;
+    public APokemon enemyPkmn;
     public Dictionary<string, Sprite> numbers;
     public Dictionary<string, Sprite> status;
     [HideInInspector]
@@ -55,12 +56,16 @@ public partial class FightSceneManager : MonoBehaviour {
         // REMOVE
         playerPkmn.currentStats.speed *= 2;
         playerPkmn.stats.speed *= 2;
+        enemy = new Trainer();
+        enemy.bag.addItem(player.trainer.bag.items[0]);
+        enemy.party.addPokemonInParty(new Bulbasaur());
         // END REMOVE
 
         playerPkmn.initInBattleStats();
-        enemy = new Bulbasaur();
-        enemy.initInBattleStats();
-        enemy.isEnemy = true;
+
+        enemyPkmn = enemy.party.getFirstPokemonReady();
+        enemyPkmn.initInBattleStats();
+        enemyPkmn.isEnemy = true;
         nbEnemyLeft = 1;
         currentSelection = 1;
         currentMode = eMode.MENU;
@@ -68,7 +73,6 @@ public partial class FightSceneManager : MonoBehaviour {
         inDialogue = false;
         nbParticipatedPokemon = 1f;
         texts = new List<string>();
-
     }
 
 	// Use this for initialization
@@ -101,11 +105,12 @@ public partial class FightSceneManager : MonoBehaviour {
         }
         while (pokemon.damageReceived < 0)
         {
-            pokemon.currentStats.hp++;
             if (pokemon.currentStats.hp == pokemon.stats.hp)
             {
                 break;
             }
+
+            pokemon.currentStats.hp++;
             pokemon.damageReceived++;
             yield return null;
         }
@@ -156,31 +161,88 @@ public partial class FightSceneManager : MonoBehaviour {
         texts.Clear();
     }
 
-    IEnumerator itemWrapper(APokemon first, APokemon second, int itemSelected)
+    IEnumerator itemWrapper(Trainer user, APokemon first, APokemon second, int itemSelected)
     {
-        Item item = player.trainer.bag.items[itemSelected];
+        Item item = user.bag.items[itemSelected];
         item.useItem(first);
         player.trainer.bag.useItem(item);
-        texts.Add(item.name + " used!");
+        texts.Add((first.isEnemy ? "FOE " : "") + item.name + " used!");
         yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(first));
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second, int firstSelection, int secondSelection, bool useItem)
+    IEnumerator runTurn(APokemon first, APokemon second, int playerSelection, int enemySelection, bool useItem)
     {
         inDialogue = true;
-        if (useItem)
+        if (!first.isEnemy)
         {
-            yield return StartCoroutine(itemWrapper(first, second, firstSelection));
+            // Joueur plus rapide ou objet utilise
+            if (useItem)
+            {
+                // Objet utilise par joueur !!!!! pas forcement !!!!!
+                yield return StartCoroutine(itemWrapper(player.trainer, first, second, playerSelection));
+                // Determiner si enemy utilise objet
+                if (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty)
+                {
+                    // enemy utilise objet
+                    print("enemy item 1");
+                    yield return StartCoroutine(itemWrapper(enemy, second, first, 0));
+                }
+                else
+                {
+                    // enemy attaque
+                    yield return StartCoroutine(moveWrapper(second, first, enemySelection));
+                }
+                // Fin du tour
+                endTurn();
+            }
+            else
+            {
+                // Pas d'objet utilise PAR LE JOUEUR
+                // Determiner si enemy utilise objet 
+                if (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty)
+                {
+                    // Enemy utilise objet
+                    print("enemy item 2");
+                    yield return StartCoroutine(itemWrapper(enemy, second, first, 0));
+                }
+                else
+                {
+                    // Enemy utilise pas objet, priorite au joueur
+                    yield return StartCoroutine(moveWrapper(first, second, playerSelection));
+                    // Puis enemy attaque
+                    yield return StartCoroutine(moveWrapper(second, first, enemySelection));
+                }
+                // Fin du tour
+                endTurn();
+            }
         }
         else
         {
-            yield return StartCoroutine(moveWrapper(first, second, firstSelection));
+            // Enemy plus rapide
+            if (useItem)
+            {
+                print("enemy item 3");
+                // Enemy utilise objet
+                yield return StartCoroutine(itemWrapper(enemy, first, second, 0));
+                // Puis joueur attaque
+                yield return StartCoroutine(moveWrapper(second, first, playerSelection));
+                // Fin du tour
+                endTurn();
+            }
+            else
+            {
+                // Enemy attaque
+                yield return StartCoroutine(moveWrapper(first, second, enemySelection));
+                // Puis joueur attaque
+                yield return StartCoroutine(moveWrapper(second, first, playerSelection));
+                // Fin du tour
+                endTurn();
+            }
         }
-        // Check hp enemy for item use ? (poison, player use item)
-        yield return StartCoroutine(moveWrapper(second, first, secondSelection));
-        endTurn();
     }
+
+
 
     // Globalize to give exp to all participating pokemon
     IEnumerator pokemonFaintProcess(APokemon pokemon)
@@ -237,10 +299,10 @@ public partial class FightSceneManager : MonoBehaviour {
         int i;
         for (i = 0; i < 4; ++i)
         {
-            if (enemy.moves[i] == null)
+            if (enemyPkmn.moves[i] == null)
                 break;
-            float effectiveness = enemy.moves[i].Type.dmgsModifier(playerPkmn.type1)
-                * enemy.moves[i].Type.dmgsModifier(playerPkmn.type2);
+            float effectiveness = enemyPkmn.moves[i].Type.dmgsModifier(playerPkmn.type1)
+                * enemyPkmn.moves[i].Type.dmgsModifier(playerPkmn.type2);
             if (effectiveness > max)
             {
                 max = effectiveness;
@@ -296,33 +358,36 @@ public partial class FightSceneManager : MonoBehaviour {
             return;
         updateSelection();
         controlStatus(playerPkmn);
-        controlStatus(enemy);
+        controlStatus(enemyPkmn);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             int enemyMove = enemyChoice();
-            // Use if pokemon hp in red
-            bool enemyUseItem = false;
+            bool enemyUseItem = (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty);
+            print(enemyUseItem);
             switch (currentMode)
             {
                 case eMode.MENU:
-                    menuActions();
+                    StartCoroutine(menuActions());
                     break;
 
                 case eMode.FIGHT:
-                    if (playerPkmn.currentStats.speed > enemy.currentStats.speed
-                        || (playerPkmn.currentStats.speed == enemy.currentStats.speed
-                            && Random.Range(0, 100) < 50))
+                    if (!enemyUseItem && (playerPkmn.currentStats.speed > enemyPkmn.currentStats.speed
+                        || (playerPkmn.currentStats.speed == enemyPkmn.currentStats.speed
+                            && Random.Range(0, 100) < 50)))
                     {
-                        StartCoroutine(runTurn(playerPkmn, enemy, currentSelection, enemyMove, enemyUseItem));
+                        StartCoroutine(runTurn(playerPkmn, enemyPkmn, currentSelection, enemyMove, false));
                     }
                     else
                     {
-                        StartCoroutine(runTurn(enemy, playerPkmn, currentSelection, enemyMove, enemyUseItem));
+                        StartCoroutine(runTurn(enemyPkmn, playerPkmn, currentSelection, enemyMove, enemyUseItem));
                     }
                     break;
 
                 case eMode.BAG:
-                    StartCoroutine(runTurn(playerPkmn, enemy, BagManager.instance.selection, enemyMove, enemyUseItem));
+                    if (!BagManager.instance.cancelSelected)
+                    {
+                        StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
+                    }
                     break;
 
                 default:
@@ -344,8 +409,9 @@ public partial class FightSceneManager : MonoBehaviour {
 	}
 
 
-    private void menuActions()
+    private IEnumerator menuActions()
     {
+        print("la");
         switch ((eMode)currentSelection)
         {
             case eMode.MENU:
@@ -356,7 +422,17 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.BAG:
-                BagManager.instance.enabled = true;
+                if (!player.trainer.bag.isEmpty)
+                {
+                    BagManager.instance.enabled = true;
+                    break;
+                }
+                else
+                {
+                    texts.Add("Nothing in the bag!");
+                    yield return StartCoroutine(startDialogue());
+                    endTurn();
+                }
                 print("BAG");
                 break;
 
@@ -373,6 +449,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
         }
         currentMode = (eMode)currentSelection;
+        yield return null;
     }
 
     private void exitFight()

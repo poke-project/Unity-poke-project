@@ -5,10 +5,12 @@ using System.Collections.Generic;
 public class Bag
 {
     public List<Item> items;
+    public bool isEmpty;
 
     public Bag()
     {
         items = new List<Item>();
+        isEmpty = true;
     }
 
     public void addItem(Item newItem)
@@ -36,6 +38,7 @@ public class Bag
                 break;
             }
         }
+        isEmpty = false;
     }
 
     public void removeItem(Item item)
@@ -57,6 +60,10 @@ public class Bag
         if (items[indexLessHeld].nbHeld == 0)
         {
             items.RemoveAt(indexLessHeld);
+        }
+        if (items.Count == 0)
+        {
+            isEmpty = true;
         }
     }
 

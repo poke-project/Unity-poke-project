@@ -81,7 +81,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
         // Check in pokedex if pokemon caught
         else
         {
-            pokemon = FightSceneManager.instance.enemy;
+            pokemon = FightSceneManager.instance.enemyPkmn;
             Sprite caughtSprite = Resources.Load<Sprite>("Sprites/pokemonCaught");
             if (true)
             {
