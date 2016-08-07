@@ -99,6 +99,16 @@ public partial class FightSceneManager : MonoBehaviour {
             pokemon.damageReceived--;
             yield return null;
         }
+        while (pokemon.damageReceived < 0)
+        {
+            pokemon.currentStats.hp++;
+            if (pokemon.currentStats.hp == pokemon.stats.hp)
+            {
+                break;
+            }
+            pokemon.damageReceived++;
+            yield return null;
+        }
     }
 
     IEnumerator updateXp(int expGain)
@@ -146,11 +156,29 @@ public partial class FightSceneManager : MonoBehaviour {
         texts.Clear();
     }
 
-    IEnumerator runTurn(APokemon first, APokemon second, int moveSelected)
+    IEnumerator itemWrapper(APokemon first, APokemon second, int itemSelected)
+    {
+        Item item = player.trainer.bag.items[itemSelected];
+        item.useItem(first);
+        player.trainer.bag.useItem(item);
+        texts.Add(item.name + " used!");
+        yield return StartCoroutine(startDialogue());
+        yield return StartCoroutine(updateHp(first));
+    }
+
+    IEnumerator runTurn(APokemon first, APokemon second, int firstSelection, int secondSelection, bool useItem)
     {
         inDialogue = true;
-        yield return StartCoroutine(moveWrapper(first, second, moveSelected));
-        yield return StartCoroutine(moveWrapper(second, first, moveSelected));
+        if (useItem)
+        {
+            yield return StartCoroutine(itemWrapper(first, second, firstSelection));
+        }
+        else
+        {
+            yield return StartCoroutine(moveWrapper(first, second, firstSelection));
+        }
+        // Check hp enemy for item use ? (poison, player use item)
+        yield return StartCoroutine(moveWrapper(second, first, secondSelection));
         endTurn();
     }
 
@@ -202,6 +230,31 @@ public partial class FightSceneManager : MonoBehaviour {
         return (exp);
     }
 
+    private int enemyChoice()
+    {
+        float max = 0;
+        int indexMove = 0;
+        int i;
+        for (i = 0; i < 4; ++i)
+        {
+            if (enemy.moves[i] == null)
+                break;
+            float effectiveness = enemy.moves[i].Type.dmgsModifier(playerPkmn.type1)
+                * enemy.moves[i].Type.dmgsModifier(playerPkmn.type2);
+            if (effectiveness > max)
+            {
+                max = effectiveness;
+                indexMove = i;
+            }
+        }
+        if (max < 2)
+        {
+            indexMove = Random.Range(0, i);
+        }
+        // index is decremented later
+        return (indexMove + 1);
+    }
+
     // Remove after test
     private void controlStatus(APokemon pokemon)
     {
@@ -246,6 +299,9 @@ public partial class FightSceneManager : MonoBehaviour {
         controlStatus(enemy);
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            int enemyMove = enemyChoice();
+            // Use if pokemon hp in red
+            bool enemyUseItem = false;
             switch (currentMode)
             {
                 case eMode.MENU:
@@ -253,18 +309,20 @@ public partial class FightSceneManager : MonoBehaviour {
                     break;
 
                 case eMode.FIGHT:
-                    print(playerPkmn.currentStats.speed);
-                    print(enemy.currentStats.speed);
                     if (playerPkmn.currentStats.speed > enemy.currentStats.speed
                         || (playerPkmn.currentStats.speed == enemy.currentStats.speed
                             && Random.Range(0, 100) < 50))
                     {
-                        StartCoroutine(runTurn(playerPkmn, enemy, currentSelection));
+                        StartCoroutine(runTurn(playerPkmn, enemy, currentSelection, enemyMove, enemyUseItem));
                     }
                     else
                     {
-                        StartCoroutine(runTurn(enemy, playerPkmn, currentSelection));
+                        StartCoroutine(runTurn(enemy, playerPkmn, currentSelection, enemyMove, enemyUseItem));
                     }
+                    break;
+
+                case eMode.BAG:
+                    StartCoroutine(runTurn(playerPkmn, enemy, BagManager.instance.selection, enemyMove, enemyUseItem));
                     break;
 
                 default:
@@ -298,6 +356,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.BAG:
+                BagManager.instance.enabled = true;
                 print("BAG");
                 break;
 

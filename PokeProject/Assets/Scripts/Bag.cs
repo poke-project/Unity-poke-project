@@ -20,7 +20,7 @@ public class Bag
         }
         if (items.Count == 0)
         {
-            items.Add(new Item(newItem));
+            items.Add(newItem);
             return;
         }
         for (int i = 0; i < items.Count; ++i)
@@ -32,7 +32,7 @@ public class Bag
             }
             else if ((i == (items.Count - 1)))
             {
-                items.Add(new Item(newItem));
+                items.Add(newItem);
                 break;
             }
         }

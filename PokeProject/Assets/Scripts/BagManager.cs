@@ -27,14 +27,15 @@ public class BagManager : MonoBehaviour {
 	void Start ()
     {
         bag = Game.Instance.player.trainer.bag;
+        enabled = false;
 	}
 	
     void OnEnable()
     {
-        print("on enable");
         selection = 0;
         cursorPos = 0;
         cancelSelected = false;
+        GameManager.instance.inBagMenu = true;
     }
 
 	// Update is called once per frame
@@ -42,9 +43,9 @@ public class BagManager : MonoBehaviour {
     {
         nbItems = bag.items.Count;
         updateSelection();
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (GameManager.instance.inBagMenu && Input.GetKeyDown(KeyCode.Space))
         {
-            if (!cancelSelected)
+            if (!cancelSelected && GameManager.instance.inFight)
             {
                 bag.useItem(selection);
             }
@@ -65,16 +66,12 @@ public class BagManager : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            //  print(selection);
-            //  print(nbItems - 1);
-            print("update in manager");
             if (selection < (nbItems - 1))
             {
                 selection++;
             }
             else
             {
-                print("cancel selected");
                 cancelSelected = true;
             }
             if (selection > (nbItems - 3) && cursorPos < maxDisplay && cursorPos < nbItems)

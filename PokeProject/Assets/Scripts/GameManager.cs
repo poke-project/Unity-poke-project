@@ -11,22 +11,27 @@ public class GameManager : MonoBehaviour {
     public PersistentData persistentData;
     [HideInInspector]
     public bool inMenu;
+    //[HideInInspector]
+    public bool inBagMenu;
 
+    [SerializeField]
+    public bool inFight;
     [SerializeField]
     private GameObject UIManager;
 
     void Awake()
     {
+        instance = this;
+        persistentData = GameObject.Find("PersistentData").GetComponent<PersistentData>();
+        inMenu = false;
+        inBagMenu = false;
     }
     
 	// Use this for initialization
 	void Start ()
     {
-        instance = this;
         game = Game.Instance;
-        persistentData = GameObject.Find("PersistentData").GetComponent<PersistentData>();
-        inMenu = false;
-	}
+  	}
 	
 	// Update is called once per frame
 	void Update ()

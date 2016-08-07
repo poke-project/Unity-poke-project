@@ -11,7 +11,6 @@ public class BagUI : MonoBehaviour {
     private BagManager bagManager;
     private Bag bag;
     private int cursorPos;
-    //private int maxDisplay;
     private int nbItems;
     private int itemIndex;
 
@@ -26,7 +25,6 @@ public class BagUI : MonoBehaviour {
     {
         bagManager = BagManager.instance;
         bag = bagManager.bag;
-        //maxDisplay = texts.Length - 1;
 	}
 
     void OnEnable()
@@ -42,6 +40,7 @@ public class BagUI : MonoBehaviour {
         // this way or whole UI manager
         if (bagManager.enabled == false)
         {
+            GameManager.instance.inBagMenu = false;
             gameObject.SetActive(false);
         }
 

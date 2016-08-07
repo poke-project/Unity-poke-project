@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
     public Trainer trainer;
     private static bool firstAwake = true;
 
+    private Item potion;
+
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -35,7 +37,8 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
-            Item a = new Item("a");
+            applyEffect toto = target => target.damageReceived = -20;
+            Item potion = new Item("Potion", toto, true);
             Item b = new Item("b");
             Item c = new Item("c");
             Item d = new Item("d");
@@ -47,7 +50,7 @@ public class Player : MonoBehaviour
             Item j = new Item("j");
             Item k = new Item("k");
             Item l = new Item("l");
-            trainer.bag.addItem(a);
+            trainer.bag.addItem(potion);
             trainer.bag.addItem(b);
             trainer.bag.addItem(c);
             trainer.bag.addItem(d);
