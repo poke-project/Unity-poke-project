@@ -65,4 +65,9 @@ public class Bag
         item.use();
         removeItem(item);
     }
+
+    public void useItem(int index)
+    {
+        useItem(items[index]);
+    }
 }

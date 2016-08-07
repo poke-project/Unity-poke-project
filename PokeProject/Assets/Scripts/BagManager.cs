@@ -8,17 +8,19 @@ public class BagManager : MonoBehaviour {
     [HideInInspector]
     public int selection;
     [HideInInspector]
+    public int cursorPos;
+    [HideInInspector]
     public int nbItems;
 
     public Bag bag;
 
     private bool cancelSelected;
+    private int maxDisplay;
 
     void Awake()
     {
-        selection = 0;
         instance = this;
-        cancelSelected = false;
+        maxDisplay = 3;
     }
 
 	// Use this for initialization
@@ -27,6 +29,14 @@ public class BagManager : MonoBehaviour {
         bag = Game.Instance.player.trainer.bag;
 	}
 	
+    void OnEnable()
+    {
+        print("on enable");
+        selection = 0;
+        cursorPos = 0;
+        cancelSelected = false;
+    }
+
 	// Update is called once per frame
 	void Update ()
     {
@@ -34,14 +44,11 @@ public class BagManager : MonoBehaviour {
         updateSelection();
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (cancelSelected)
+            if (!cancelSelected)
             {
-                enabled = false;
+                bag.useItem(selection);
             }
-            else
-            {
-                bag.items[selection].use();
-            }
+            enabled = false;
         }
 	}
 
@@ -50,20 +57,37 @@ public class BagManager : MonoBehaviour {
         if (nbItems == 0)
         {
             cancelSelected = true;
+            return;
+        }
+        if ((selection != (nbItems - 1)) && cancelSelected)
+        {
+            cancelSelected = false;
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
+            //  print(selection);
+            //  print(nbItems - 1);
+            print("update in manager");
             if (selection < (nbItems - 1))
             {
                 selection++;
             }
             else
             {
+                print("cancel selected");
                 cancelSelected = true;
+            }
+            if (selection > (nbItems - 3) && cursorPos < maxDisplay && cursorPos < nbItems)
+            {
+                cursorPos++;
             }
         }
         else if (Input.GetKeyDown(KeyCode.UpArrow))
         {
+            if (cursorPos > 0)
+            {
+                cursorPos--;
+            }
             if (selection > 0 && !cancelSelected)
             {
                 selection--;

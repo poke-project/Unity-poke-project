@@ -11,13 +11,14 @@ public class BagUI : MonoBehaviour {
     private BagManager bagManager;
     private Bag bag;
     private int cursorPos;
-    private int maxDisplay;
+    //private int maxDisplay;
+    private int nbItems;
+    private int itemIndex;
 
     void Awake()
     {
         texts = GetComponentsInChildren<Text>(true);
         arrow = transform.Find("Arrow").GetComponent<Image>();
-        cursorPos = 0;
     }
 
 	// Use this for initialization
@@ -25,8 +26,15 @@ public class BagUI : MonoBehaviour {
     {
         bagManager = BagManager.instance;
         bag = bagManager.bag;
-        maxDisplay = texts.Length - 1;
+        //maxDisplay = texts.Length - 1;
 	}
+
+    void OnEnable()
+    {
+        cursorPos = 0;
+        itemIndex = 0;
+        nbItems = 0;
+    }
 
     // Update is called once per frame
     void Update()
@@ -42,42 +50,25 @@ public class BagUI : MonoBehaviour {
             texts[0].text = "Cancel";
             return;
         }
-        int nbItems = bagManager.nbItems;
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if (bagManager.selection >= (nbItems - 2))
-            {
-                if (cursorPos < maxDisplay && cursorPos < nbItems)
-                {
-                    cursorPos++;
-                }
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (cursorPos > 0)
-            {
-                cursorPos--;
-            }
-        }
-
-        int itemIndex = bagManager.selection;
+        nbItems = bagManager.nbItems;
+        cursorPos = bagManager.cursorPos;
+        itemIndex = bagManager.selection;
         if (nbItems < 2)
         {
-            texts[0].text = bag.items[itemIndex].name;
+            texts[0].text = bag.items[itemIndex].name + "\t\t\t\tx" + bag.items[itemIndex].nbHeld;
             texts[1].text = "Cancel";
         }
         else if (nbItems < 3 && itemIndex < nbItems - 1)
         {
-            texts[0].text = bag.items[itemIndex].name;
-            texts[1].text = bag.items[itemIndex + 1].name;
+            texts[0].text = bag.items[itemIndex].name + "\t\t\t\tx" + bag.items[itemIndex].nbHeld;
+            texts[1].text = bag.items[itemIndex + 1].name + "\t\t\t\tx" + bag.items[itemIndex + 1].nbHeld;
             texts[2].text = "Cancel";
         }
         else if (itemIndex < (nbItems - 2))
         {
-            texts[0].text = bag.items[itemIndex].name;
-            texts[1].text = bag.items[itemIndex + 1].name;
-            texts[2].text = bag.items[itemIndex + 2].name;
+            texts[0].text = bag.items[itemIndex].name + "\t\t\t\tx" + bag.items[itemIndex].nbHeld;
+            texts[1].text = bag.items[itemIndex + 1].name + "\t\t\t\tx" + bag.items[itemIndex + 1].nbHeld;
+            texts[2].text = bag.items[itemIndex + 2].name + "\t\t\t\tx" + bag.items[itemIndex + 2].nbHeld;
             texts[3].text = "Cancel";
         }
         arrow.rectTransform.anchorMin = new Vector2(0.05f, texts[cursorPos].rectTransform.anchorMin.y);
