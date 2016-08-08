@@ -97,7 +97,7 @@ public class Bulbasaur : APokemon {
             return (new eAbility[2] { eAbility.overgrow, eAbility.chlorophyll });
         }
     }
-    public override float catchRate
+    public override int catchRate
     {
         get
         {

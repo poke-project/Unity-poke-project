@@ -46,9 +46,9 @@ public class BagManager : MonoBehaviour {
         updateSelection();
         if (GameManager.instance.inBagMenu && Input.GetKeyDown(KeyCode.Space))
         {
-            if (!cancelSelected && GameManager.instance.inFight)
+            if (!cancelSelected && !GameManager.instance.inFight)
             {
-                bag.useItem(selection);
+                bag.useItem(selection, null);
             }
             enabled = false;
         }

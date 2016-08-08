@@ -89,7 +89,7 @@ abstract public class APokemon : IMySerializable
     public abstract AType type1 { get; }
     public abstract AType type2 { get; }
     public abstract eAbility[] possibleAbilities { get; }
-    public abstract float catchRate { get; }
+    public abstract int catchRate { get; }
     public abstract bool canEvolve { get; }
     public abstract float genderRepartition { get; }
     public abstract int evolutionNumber { get; }

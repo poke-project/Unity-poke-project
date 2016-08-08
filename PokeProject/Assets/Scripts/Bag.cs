@@ -67,14 +67,17 @@ public class Bag
         }
     }
 
-    public void useItem(Item item)
+    public void useItem(Item item, APokemon target)
     {
-        item.use();
+        if (!item.isPokeball)
+        {
+            item.use(target);
+        }
         removeItem(item);
     }
 
-    public void useItem(int index)
+    public void useItem(int index, APokemon target)
     {
-        useItem(items[index]);
+        useItem(items[index], target);
     }
 }

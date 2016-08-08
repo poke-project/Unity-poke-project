@@ -26,7 +26,10 @@ public class FightPokemonInfoUI : MonoBehaviour {
     private APokemon pokemon;
     private Transform frame;
     private Sprite[] resourcesFrame;
+    private Sprite enemySpriteSave;
+    private Sprite pokeball;
     private int goalHp;
+    private float internTime;
 
     [SerializeField]
     private Sprite lowHp;
@@ -62,7 +65,9 @@ public class FightPokemonInfoUI : MonoBehaviour {
         else
         {
             resourcesFrame = Resources.LoadAll<Sprite>("Sprites/Combat Scene/Enemy");
+            pokeball = Resources.Load<Sprite>("Sprites/pokeball");
             xpBar = null;
+            internTime = 0;
         }
     }
 
@@ -92,6 +97,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
                 frame.transform.Find("Caught").GetComponent<Image>().sprite = blank;
             }
             pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.name);
+            enemySpriteSave = pokemonImage.sprite;
         }
         updateFrame();
         updateName();
@@ -108,8 +114,40 @@ public class FightPokemonInfoUI : MonoBehaviour {
             setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit, false);
             setHpText(maxFirstDigit, maxSecondDigit, maxThirdDigit, true);
         }
+        else
+        {
+            updateShake();
+        }
 	}
     
+    private void updateShake()
+    {
+        if (FightSceneManager.instance.shakeNb > 0)
+        {
+            pokemonImage.sprite = pokeball;
+            internTime += Time.deltaTime;
+            if (internTime > 0.1f)
+            {
+                if (internTime > 2)
+                    internTime = 0;
+            }
+            else if (internTime > 0.05f)
+            {
+                pokemonImage.gameObject.transform.Rotate(new Vector3(0, 0, -340 * Time.deltaTime));
+            }
+            else
+            {
+                pokemonImage.gameObject.transform.Rotate(new Vector3(0, 0, 340 * Time.deltaTime));
+            }
+        }
+        else
+        {
+            pokemonImage.sprite = enemySpriteSave;
+            pokemonImage.gameObject.transform.rotation = Quaternion.identity;
+            internTime = 1.4f;
+        }
+    }
+
     private void updateFrame()
     {
         frame.GetComponent<Image>().sprite = resourcesFrame[pokemon.gender];
