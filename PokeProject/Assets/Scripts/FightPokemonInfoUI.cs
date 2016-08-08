@@ -116,6 +116,11 @@ public class FightPokemonInfoUI : MonoBehaviour {
         }
         else
         {
+            if (FightSceneManager.instance.enemyCaught && FightSceneManager.instance.shakeNb == 0)
+            {
+                pokemonImage.color = new Color(0.3f, 0.3f, 0.3f);
+                pokemonImage.sprite = pokeball;
+            }
             updateShake();
         }
 	}
@@ -124,12 +129,15 @@ public class FightPokemonInfoUI : MonoBehaviour {
     {
         if (FightSceneManager.instance.shakeNb > 0)
         {
-            pokemonImage.sprite = pokeball;
+            if (pokemonImage.sprite != pokeball)
+                pokemonImage.sprite = pokeball;
             internTime += Time.deltaTime;
             if (internTime > 0.1f)
             {
                 if (internTime > 2)
+                {
                     internTime = 0;
+                }
             }
             else if (internTime > 0.05f)
             {
@@ -140,7 +148,7 @@ public class FightPokemonInfoUI : MonoBehaviour {
                 pokemonImage.gameObject.transform.Rotate(new Vector3(0, 0, 340 * Time.deltaTime));
             }
         }
-        else
+        else if (!FightSceneManager.instance.enemyCaught)
         {
             pokemonImage.sprite = enemySpriteSave;
             pokemonImage.gameObject.transform.rotation = Quaternion.identity;

@@ -28,6 +28,7 @@ public partial class FightSceneManager : MonoBehaviour {
     [HideInInspector]
     public int currentSelection;
     public int shakeNb;
+    public bool enemyCaught;
     
     //[HideInInspector]
     public eMode currentMode;
@@ -42,7 +43,6 @@ public partial class FightSceneManager : MonoBehaviour {
     private float nbParticipatedPokemon;
     private string prefix;
     int nbEnemyLeft;
-    bool enemyCaught;
 
     void Awake()
     {
@@ -179,7 +179,7 @@ public partial class FightSceneManager : MonoBehaviour {
         texts.Clear();
     }
 
-    IEnumerator pokemonBreaksFree(APokemon pokemon, Item pokeball, float f, int s)
+    IEnumerator setShakes(APokemon pokemon, Item pokeball, float f, int s)
     {
         if (f == 0)
         {
@@ -214,8 +214,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 shakeNb = 3;
             }
         }
-        yield return StartCoroutine(updateShake());
-        yield return StartCoroutine(startDialogue());
+        yield return null;
     }
 
     IEnumerator itemWrapper(Trainer user, APokemon first, APokemon second, int itemSelected)
@@ -224,62 +223,59 @@ public partial class FightSceneManager : MonoBehaviour {
         user.bag.useItem(item, first);
         if (item.isPokeball)
         {
+            bool success = false;
             if (item.name == "MasterBall")
             {
-                // pokemon caught
-                enemyCaught = true;
-                yield break;
-            }
-            int rand = Random.Range(0, item.ballMod + 1);
-            if (second.status == eStatus.SLEEPING || second.status == eStatus.FROZEN)
-            {
-                if (rand < 25)
-                {
-                    // pokemon caught
-                    enemyCaught = true;
-                    yield break;
-                }
-                if (rand - 25 > second.catchRate)
-                {
-                    // pokemon free
-                    yield return StartCoroutine(pokemonBreaksFree(second, item, 0, 10));
-                    yield break;
-                }
-            }
-            else if (second.status == eStatus.PARALIZED || second.status == eStatus.BURNED || second.status == eStatus.POISONED)
-            {
-                if (rand < 12)
-                {
-                    // pokemon caught
-                    enemyCaught = true;
-                    yield break;
-                }
-                if (rand - 12 > second.catchRate)
-                {
-                    // pokemon free
-                    yield return StartCoroutine(pokemonBreaksFree(second, item, 0, 5));
-                    yield break;
-                }
+                success = true;
             }
             else
             {
-                rand = Random.Range(0, 255);
-                float f = (second.stats.hp * 255 * 4) / (second.currentStats.hp * item.ballValue);
-                if (f >= rand)
+                int rand = Random.Range(0, item.ballMod + 1);
+                if (second.status == eStatus.SLEEPING || second.status == eStatus.FROZEN)
                 {
-                    print("CAUGHT");
-                    // pokemon caught
-                    enemyCaught = true;
-                    yield break;
+                    if (rand < 25)
+                    {
+                        success = true;
+                    }
+                    else if (rand - 25 > second.catchRate)
+                    {
+                        yield return StartCoroutine(setShakes(second, item, 0, 10));
+                    }
+                }
+                else if (second.status == eStatus.PARALIZED || second.status == eStatus.BURNED || second.status == eStatus.POISONED)
+                {
+                    if (rand < 12)
+                    {
+                        success = true;
+                    }
+                    else if (rand - 12 > second.catchRate)
+                    {
+                        yield return StartCoroutine(setShakes(second, item, 0, 5));
+                    }
                 }
                 else
                 {
-                    print("BREAKS FREE");
-                    yield return StartCoroutine(pokemonBreaksFree(second, item, f, 0));
-                    // pokemon free
-                    yield break;
+                    rand = Random.Range(0, 255);
+                    float f = (second.stats.hp * 255 * 4) / (second.currentStats.hp * item.ballValue);
+                    if (f >= rand)
+                    {
+                        success = true;
+                    }
+                    else
+                    {
+                        print("la");
+                        yield return StartCoroutine(setShakes(second, item, f, 0));
+                    }
                 }
             }
+            if (success)
+            {
+                shakeNb = 3;
+                texts.Add("All right! " + second.name + " was caught!");
+            }
+            enemyCaught = success;
+            yield return StartCoroutine(updateShake());
+            yield return StartCoroutine(startDialogue());
         }
         else
         {
@@ -287,6 +283,22 @@ public partial class FightSceneManager : MonoBehaviour {
             yield return StartCoroutine(startDialogue());
             yield return StartCoroutine(updateHp(first));
         }
+    }
+
+    IEnumerator processPokemonCaught(APokemon pokemon)
+    {
+        // Renommer pokemon
+        player.trainer.party.addPokemonInParty(pokemon);
+        if (player.trainer.party.nbInParty >= 6)
+        {
+            texts.Add("No more slot in party\n" + pokemon.name + " sent to storage!");
+        }
+        else
+        {
+            texts.Add(pokemon.name + " added in the party!");
+        }
+        yield return StartCoroutine(startDialogue());
+        nbEnemyLeft--;
     }
 
     IEnumerator runTurn(APokemon first, APokemon second, int playerSelection, int enemySelection, bool useItem)
@@ -299,6 +311,12 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 // Objet utilise par joueur !!!!! pas forcement !!!!!
                 yield return StartCoroutine(itemWrapper(player.trainer, first, second, playerSelection));
+                if (enemyCaught)
+                {
+                    yield return StartCoroutine(processPokemonCaught(second));
+                    endTurn();
+                    yield break;
+                }
                 // Determiner si enemy utilise objet
                 if (checkForItemUse())
                 {
@@ -381,8 +399,10 @@ public partial class FightSceneManager : MonoBehaviour {
         {
             if (player.trainer.party.getFirstPokemonReady() == null)
             {
-                //TAPETTE
+                texts.Add(player.trainer.name + " blacks out!");
+                yield return StartCoroutine(startDialogue());
                 player.trainer.money /= 2;
+                exitFight();
             }
             else
             {
@@ -506,7 +526,15 @@ public partial class FightSceneManager : MonoBehaviour {
                 case eMode.BAG:
                     if (!BagManager.instance.cancelSelected)
                     {
-                        StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
+                        Item item = player.trainer.bag.items[BagManager.instance.selection];
+                        if (!item.usableInFight || (item.isPokeball && (enemy != null)))
+                        {
+                            // Cannot do that
+                        }
+                        else
+                        {
+                            StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
+                        }
                     }
                     else
                     {
