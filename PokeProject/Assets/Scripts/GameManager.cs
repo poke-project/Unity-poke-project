@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour {
 	void Start ()
     {
         game = Game.Instance;
+        inBagMenu = false;
   	}
 	
 	// Update is called once per frame

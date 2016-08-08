@@ -27,8 +27,10 @@ public partial class FightSceneManager : MonoBehaviour {
     public Sprite blank;
     [HideInInspector]
     public int currentSelection;
-    [HideInInspector]
+    
+    //[HideInInspector]
     public eMode currentMode;
+
     public string dialogueText;
     private List<string> texts;
     public bool isTrainerBattle;
@@ -57,7 +59,9 @@ public partial class FightSceneManager : MonoBehaviour {
         playerPkmn.currentStats.speed *= 2;
         playerPkmn.stats.speed *= 2;
         enemy = new Trainer();
-        enemy.bag.addItem(player.trainer.bag.items[0]);
+        applyEffect toto = target => target.damageReceived = -20;
+        Item potion = new Item("Potion", toto, true);
+        enemy.bag.addItem(potion);
         enemy.party.addPokemonInParty(new Bulbasaur());
         // END REMOVE
 
@@ -165,7 +169,7 @@ public partial class FightSceneManager : MonoBehaviour {
     {
         Item item = user.bag.items[itemSelected];
         item.useItem(first);
-        player.trainer.bag.useItem(item);
+        user.bag.useItem(item);
         texts.Add((first.isEnemy ? "FOE " : "") + item.name + " used!");
         yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(first));
@@ -182,7 +186,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 // Objet utilise par joueur !!!!! pas forcement !!!!!
                 yield return StartCoroutine(itemWrapper(player.trainer, first, second, playerSelection));
                 // Determiner si enemy utilise objet
-                if (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty)
+                if (enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !enemy.bag.isEmpty)
                 {
                     // enemy utilise objet
                     print("enemy item 1");
@@ -200,7 +204,7 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 // Pas d'objet utilise PAR LE JOUEUR
                 // Determiner si enemy utilise objet 
-                if (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty)
+                if (enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !enemy.bag.isEmpty)
                 {
                     // Enemy utilise objet
                     print("enemy item 2");
@@ -241,8 +245,6 @@ public partial class FightSceneManager : MonoBehaviour {
             }
         }
     }
-
-
 
     // Globalize to give exp to all participating pokemon
     IEnumerator pokemonFaintProcess(APokemon pokemon)
@@ -362,8 +364,7 @@ public partial class FightSceneManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             int enemyMove = enemyChoice();
-            bool enemyUseItem = (/*enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !*/enemy.bag.isEmpty);
-            print(enemyUseItem);
+            bool enemyUseItem = (enemyPkmn.currentStats.hp < (enemyPkmn.stats.hp / 5) && !enemy.bag.isEmpty);
             switch (currentMode)
             {
                 case eMode.MENU:
@@ -388,6 +389,11 @@ public partial class FightSceneManager : MonoBehaviour {
                     {
                         StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
                     }
+                    else
+                    {
+                        print("ici");
+                        currentMode = eMode.MENU;
+                    }
                     break;
 
                 default:
@@ -404,6 +410,7 @@ public partial class FightSceneManager : MonoBehaviour {
         {
             currentSelection = 1;
             currentMode = eMode.MENU;
+            BagManager.instance.enabled = false;
         }
         internalTime += Time.deltaTime;
 	}
@@ -411,29 +418,17 @@ public partial class FightSceneManager : MonoBehaviour {
 
     private IEnumerator menuActions()
     {
-        print("la");
         switch ((eMode)currentSelection)
         {
             case eMode.MENU:
                 break;
 
             case eMode.FIGHT:
-                print("FIGHT");
+                    print("in fight");
                 break;
 
             case eMode.BAG:
-                if (!player.trainer.bag.isEmpty)
-                {
-                    BagManager.instance.enabled = true;
-                    break;
-                }
-                else
-                {
-                    texts.Add("Nothing in the bag!");
-                    yield return StartCoroutine(startDialogue());
-                    endTurn();
-                }
-                print("BAG");
+                BagManager.instance.enabled = true;
                 break;
 
             case eMode.POKEMON:

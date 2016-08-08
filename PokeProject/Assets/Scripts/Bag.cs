@@ -15,6 +15,7 @@ public class Bag
 
     public void addItem(Item newItem)
     {
+        isEmpty = false;
         if (items.Count > 20)
         {
             Debug.Log("Not enough slots in bag");
@@ -38,7 +39,6 @@ public class Bag
                 break;
             }
         }
-        isEmpty = false;
     }
 
     public void removeItem(Item item)
