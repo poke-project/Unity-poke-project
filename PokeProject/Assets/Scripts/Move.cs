@@ -5,7 +5,7 @@ public class Move : IMySerializable
 {
     public string MoveName { get; private set; }
     public int MaxPP { get; private set; }
-    public int CurrentPP { get; private set; }
+    public int CurrentPP { get; set; }
 
     public Statistics EnemyEffect { get; private set; }
     public Statistics SelfEffect { get; private set; }

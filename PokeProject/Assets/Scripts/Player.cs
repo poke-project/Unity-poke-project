@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Player : MonoBehaviour
 {
+    public Pokedex pokedex;
     public Trainer trainer;
     private static bool firstAwake = true;
 
@@ -21,6 +22,8 @@ public class Player : MonoBehaviour
         trainer.money = 0;
         // Prompt player for name
         trainer.name = "PGM";
+        // Should load pokedex from save
+        pokedex = new Pokedex();
     }
 
 	void Start ()

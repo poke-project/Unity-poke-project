@@ -78,15 +78,13 @@ public class FightPokemonInfoUI : MonoBehaviour {
         blank = FightSceneManager.instance.blank;
         if (isPlayer)
         {
-            pokemon = FightSceneManager.instance.playerPkmn;
-            // Set text for max hp
-            pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Back/" + pokemon.name);
+            updatePokemonChange(FightSceneManager.instance.playerPkmn, ref FightSceneManager.instance.playerPkmnChange);
             xpBar.maxValue = pokemon.expThreshold;
         }
         // Check in pokedex if pokemon caught
         else
         {
-            pokemon = FightSceneManager.instance.enemyPkmn;
+            updatePokemonChange(FightSceneManager.instance.enemyPkmn, ref FightSceneManager.instance.enemyPkmnChange);
             Sprite caughtSprite = Resources.Load<Sprite>("Sprites/pokemonCaught");
             if (true)
             {
@@ -96,26 +94,24 @@ public class FightPokemonInfoUI : MonoBehaviour {
             {
                 frame.transform.Find("Caught").GetComponent<Image>().sprite = blank;
             }
-            pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.name);
-            enemySpriteSave = pokemonImage.sprite;
         }
-        updateFrame();
-        updateName();
 	}
 	
 	void Update ()
     {
         updateHpBar();
         updateStatus();
-        updateLevel();
         if (isPlayer)
         {
+            updatePokemonChange(FightSceneManager.instance.playerPkmn, ref FightSceneManager.instance.playerPkmnChange);
+            updateLevel();
             updateExp();
             setHpText(currentFirstDigit, currentSecondDigit, currentThirdDigit, false);
             setHpText(maxFirstDigit, maxSecondDigit, maxThirdDigit, true);
         }
         else
         {
+            updatePokemonChange(FightSceneManager.instance.enemyPkmn, ref FightSceneManager.instance.enemyPkmnChange);
             if (FightSceneManager.instance.enemyCaught && FightSceneManager.instance.shakeNb == 0)
             {
                 pokemonImage.color = new Color(0.3f, 0.3f, 0.3f);
@@ -125,6 +121,27 @@ public class FightPokemonInfoUI : MonoBehaviour {
         }
 	}
     
+    private void updatePokemonChange(APokemon changedPkmn, ref bool isChanged)
+    {
+        if (isChanged)
+        {
+            pokemon = changedPkmn;
+            updateFrame();
+            updateName();
+            if (pokemon.isEnemy)
+            {
+                updateLevel();
+                pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.speciesName);
+            }
+            else
+            {
+                pokemonImage.sprite = Resources.Load<Sprite>("Sprites/Pokemons/Back/" + pokemon.speciesName);
+            }
+            enemySpriteSave = pokemonImage.sprite;
+            isChanged = false;
+        }
+    }
+
     private void updateShake()
     {
         if (FightSceneManager.instance.shakeNb > 0)

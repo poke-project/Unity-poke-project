@@ -200,6 +200,15 @@ public partial class FightSceneManager
         {
             return;
         }
+        if (user.isEnemy)
+        {
+            prefix = "Foe ";
+            usedMove.CurrentPP++;
+        }
+        else
+        {
+            prefix = "";
+        }
         prefix = user.isEnemy ? "Foe " : "";
 
         // Add trapped and partially trapped
