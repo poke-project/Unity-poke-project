@@ -35,19 +35,17 @@ public class PartyUI : MonoBehaviour {
     {
         party = Game.Instance.player.trainer.party;
         manager = PartyManager.instance;
-        for (int i = 0; i < 6; ++i)
-        {
-            if (i < party.nbInParty)
-            {
-                setUI(slots[i], party.pokemons[i]);
-            }
-            else
-            {
-                slots[i].SetActive(false);
-            }
-        }
+        setUI();
 	}
 	
+    void OnEnable()
+    {
+        if (party != null)
+        {
+            setUI();
+        }
+    }
+
 	// Update is called once per frame
 	void Update ()
     {
@@ -58,17 +56,42 @@ public class PartyUI : MonoBehaviour {
         }
         arrowSlots[lastSelection].sprite = null;
         arrowSlots[manager.selection].sprite = arrowSprite;
+        if (manager.needUIUpdate)
+        {
+            setSelectedSlot();
+        }
         lastSelection = manager.selection;
 	}
 
-    private void setUI(GameObject slot, APokemon pokemon)
+    private void setSlot(GameObject slot, APokemon pokemon)
     {
         // Changer le sprite
+        print("fewiof");
         slot.SetActive(true);
         slot.transform.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.speciesName);
         slot.transform.Find("Name").GetComponent<Text>().text = pokemon.name;
         slot.transform.Find("Level").GetComponent<Text>().text = pokemon.lvl.ToString();
         slot.transform.Find("HpText").GetComponent<Text>().text = pokemon.currentStats.hp.ToString() + "/    " + pokemon.stats.hp.ToString();
         slot.transform.Find("HpBar").GetComponent<Image>();
+    }
+
+    private void setUI()
+    {
+        for (int i = 0; i < 6; ++i)
+        {
+            if (i < party.nbInParty)
+            {
+                setSlot(slots[i], party.pokemons[i]);
+            }
+            else
+            {
+                slots[i].SetActive(false);
+            }
+        }
+    }
+
+    private void setSelectedSlot()
+    {
+        setSlot(slots[manager.selection], party.pokemons[manager.selection]);
     }
 }

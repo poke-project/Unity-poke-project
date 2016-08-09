@@ -45,4 +45,9 @@ public class WorldUIManager : MonoBehaviour
             }
         }	
 	}
+
+    public void setPartyUIActive()
+    {
+        partyUI.SetActive(true);
+    }
 }

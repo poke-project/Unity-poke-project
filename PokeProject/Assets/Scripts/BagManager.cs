@@ -52,7 +52,13 @@ public class BagManager : MonoBehaviour {
         {
             if (!cancelSelected && !GameManager.instance.inFight)
             {
-                bag.useItem(selection, null);
+                if (!bag.items[selection].isPokeball)
+                {
+                    PartyManager.instance.enabled = true;
+                    PartyManager.instance.selectedItem = bag.items[selection];
+                    WorldUIManager.instance.setPartyUIActive();
+                    //bag.useItem(selection, null);
+                }
             }
             enabled = false;
         }

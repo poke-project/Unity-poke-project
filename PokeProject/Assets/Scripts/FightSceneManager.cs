@@ -601,10 +601,6 @@ public partial class FightSceneManager : MonoBehaviour {
             }
             currentSelection = 1;
         }
-        /*if (nbEnemyLeft == 0)
-        {
-            exitFight();
-        }*/
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             currentSelection = 1;
