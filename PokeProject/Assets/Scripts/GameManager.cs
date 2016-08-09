@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
     public bool inMenu;
     //[HideInInspector]
     public bool inBagMenu;
+    public bool inPartyMenu;
 
     [SerializeField]
     public bool inFight;
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour {
         persistentData = GameObject.Find("PersistentData").GetComponent<PersistentData>();
         inMenu = false;
         inBagMenu = false;
+        inPartyMenu = false;
     }
     
 	// Use this for initialization
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviour {
     {
         game = Game.Instance;
         inBagMenu = false;
+        inPartyMenu = false;
   	}
 	
 	// Update is called once per frame

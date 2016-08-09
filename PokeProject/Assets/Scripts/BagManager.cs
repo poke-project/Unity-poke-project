@@ -33,9 +33,11 @@ public class BagManager : MonoBehaviour {
 	
     void OnEnable()
     {
+        // Changer modification de GameManager
         selection = 0;
         cursorPos = 0;
         cancelSelected = false;
+        print(GameManager.instance);
         GameManager.instance.inBagMenu = true;
     }
 

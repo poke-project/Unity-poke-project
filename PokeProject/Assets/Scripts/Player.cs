@@ -24,6 +24,10 @@ public class Player : MonoBehaviour
         trainer.name = "PGM";
         // Should load pokedex from save
         pokedex = new Pokedex();
+
+        APokemon totor = new Bulbasaur();
+        totor.name = "totor";
+        trainer.party.addPokemonInParty(totor);
     }
 
 	void Start ()
@@ -39,6 +43,10 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             print(trainer.party.ToString());
+            if (GameManager.instance.inMenu)
+            {
+                PartyManager.instance.enabled = true;
+            }
         }
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -67,7 +75,11 @@ public class Player : MonoBehaviour
             trainer.bag.addItem(j);
             trainer.bag.addItem(k);
             trainer.bag.addItem(l);
-            BagManager.instance.enabled = true;
+
+            if (GameManager.instance.inMenu)
+            {
+                BagManager.instance.enabled = true;
+            }
         }
 	}
 }
