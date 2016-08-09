@@ -13,6 +13,10 @@ public class PlayerAction : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        if (GameManager.instance.inMenu)
+        {
+            return;
+        }
         if (Input.GetKeyDown(InputManager.instance.action_key) &&
            !playerMovement.getInMovement())
         {

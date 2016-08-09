@@ -30,9 +30,13 @@ public class PlayerMovement : MonoBehaviour {
         direction = eDirection.DOWN;
         animator = GetComponent<Animator>();
 	}
-	
-	void Update ()
+
+    void Update()
     {
+        if (GameManager.instance.inMenu)
+        {
+            return;
+        }
         // Get a new movement input every 0.4 seconds
         if (!inMovement && refresh)
         {

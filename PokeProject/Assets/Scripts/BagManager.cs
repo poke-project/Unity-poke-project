@@ -33,12 +33,14 @@ public class BagManager : MonoBehaviour {
 	
     void OnEnable()
     {
-        // Changer modification de GameManager
         selection = 0;
         cursorPos = 0;
         cancelSelected = false;
-        print(GameManager.instance);
-        GameManager.instance.inBagMenu = true;
+        // Null check for scene loading
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.inBagMenu = true;
+        }
     }
 
 	// Update is called once per frame

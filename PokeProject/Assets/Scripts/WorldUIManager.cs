@@ -9,6 +9,7 @@ public class WorldUIManager : MonoBehaviour
     private Transform canvas;
     private GameObject menu;
     private GameObject bagUI;
+    private GameObject partyUI;
 
     void Awake()
     {
@@ -16,6 +17,7 @@ public class WorldUIManager : MonoBehaviour
         canvas = GameObject.Find("Canvas").transform;
         menu = canvas.Find("Menu").gameObject;
         bagUI = canvas.Find("Bag").gameObject;
+        partyUI = canvas.Find("Party").gameObject;
     }
 
 	// Use this for initialization
@@ -36,6 +38,10 @@ public class WorldUIManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.B))
             {
                 bagUI.SetActive(true);
+            }
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                partyUI.SetActive(true);
             }
         }	
 	}

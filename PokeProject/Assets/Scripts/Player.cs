@@ -27,7 +27,17 @@ public class Player : MonoBehaviour
 
         APokemon totor = new Bulbasaur();
         totor.name = "totor";
+        APokemon bulbamazing = new Bulbasaur();
+        bulbamazing.name = "bulbamazing";
+        APokemon bulbattorney = new Bulbasaur();
+        bulbattorney = new Bulbasaur();
+        bulbattorney.name = "bulbattorney";
+        APokemon bulbapocalypse = new Bulbasaur();
+        bulbapocalypse = new Bulbasaur();
+        bulbapocalypse.name = "bulbapocalypse";
         trainer.party.addPokemonInParty(totor);
+        trainer.party.addPokemonInParty(bulbattorney);
+        trainer.party.addPokemonInParty(bulbapocalypse);
     }
 
 	void Start ()

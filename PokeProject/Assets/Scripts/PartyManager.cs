@@ -24,8 +24,10 @@ public class PartyManager : MonoBehaviour {
 	
     void OnEnable()
     {
-        print(GameManager.instance);
-        //    GameManager.instance.inPartyMenu = true;
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.inPartyMenu = true;
+        }
     }
 
 	// Update is called once per frame
@@ -33,7 +35,7 @@ public class PartyManager : MonoBehaviour {
     {
 	    if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            if (selection < 5 && (selection < party.nbInParty))
+            if (selection < 5 && (selection < party.nbInParty - 1))
             {
                 selection++;
             }
@@ -44,6 +46,10 @@ public class PartyManager : MonoBehaviour {
             {
                 selection--;
             }
+        }
+        if (GameManager.instance.inPartyMenu && Input.GetKeyDown(KeyCode.Backspace))
+        {
+            enabled = false;
         }
 	}
 }
