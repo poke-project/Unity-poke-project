@@ -37,12 +37,11 @@ public partial class FightSceneManager : MonoBehaviour {
 
     public string dialogueText;
     private List<string> texts;
-    public bool isTrainerBattle;
+    private List<APokemon> participants;
 
     private APokemon faintedPokemon;
     private float internalTime;
     private bool inDialogue;
-    private float nbParticipatedPokemon;
     private string prefix;
     int nbEnemyLeft;
 
@@ -95,8 +94,8 @@ public partial class FightSceneManager : MonoBehaviour {
         currentMode = eMode.MENU;
         internalTime = 0.0f;
         inDialogue = false;
-        nbParticipatedPokemon = 1f;
         texts = new List<string>();
+        participants = new List<APokemon>();
         shakeNb = 0;
         enemyCaught = false;
         enemyPkmnChange = true;
@@ -432,12 +431,21 @@ public partial class FightSceneManager : MonoBehaviour {
         yield return StartCoroutine(waitForEndDialogue((pokemon.isEnemy ? "Foe " : "") + pokemon.name + " fainted!"));
         if (pokemon.isEnemy)
         {
-            playerPkmn.receiveEvs(pokemon.lootEvs);
             int expGain = findExpGain(pokemon);
-            expGain = 5000;
-            texts.Add(playerPkmn.name + " gained " + expGain.ToString() + " EXP. Points!");
-            yield return StartCoroutine(startDialogue());
-            yield return StartCoroutine(updateXp(expGain));
+            foreach (APokemon receiver in participants)
+            {
+                if (receiver.currentStats.hp > 0)
+                {
+                    receiver.receiveEvs(pokemon.lootEvs);
+                    texts.Add(receiver.name + " gained " + expGain.ToString() + " EXP. Points!");
+                    yield return StartCoroutine(startDialogue());
+                    if (receiver == playerPkmn)
+                    {
+                        yield return StartCoroutine(updateXp(expGain));
+                    }
+                }
+            }
+            participants.Clear();
             nbEnemyLeft--;
             enemyPkmn = null;
         }
@@ -455,15 +463,15 @@ public partial class FightSceneManager : MonoBehaviour {
             }
             else
             {
+                if (participants.Contains(playerPkmn))
+                {
+                    participants.Remove(playerPkmn);
+                }
                 // Choose other pokemon
-                // will not stay like this
                 endTurn();
                 currentMode = eMode.POKEMON;
                 PartyManager.instance.enabled = true;
                 yield break;
-                /*playerPkmn = player.trainer.party.getFirstPokemonReady();
-                playerPkmn.initInBattleStats();
-                playerPkmnChange = true;*/
             }
         }
         endTurn();
@@ -481,7 +489,8 @@ public partial class FightSceneManager : MonoBehaviour {
         // exp = (trainerBattleModifier * fainted.lootExp * fainted.lvl) / (7 * (nbParticipatedPokemon * 2))
         // FOr other :
         // exp = (trainerBattleModifier * fainted.lootExp * fainted.lvl) / (7 * (nbParticipatedPokemon * 2 * nbPokemonParty))
-        exp = (int)(((trainerBattleModifier * fainted.BaseLootExp * fainted.lvl)) / (7 * nbParticipatedPokemon));
+        participants.Add(playerPkmn);
+        exp = (int)(((trainerBattleModifier * fainted.BaseLootExp * fainted.lvl)) / (7 * participants.Count));
         return (exp);
     }
 
@@ -561,6 +570,7 @@ public partial class FightSceneManager : MonoBehaviour {
         // block user input during dialogue
         if (inDialogue)
             return;
+        print(playerPkmn.GetHashCode());
         if (enemyPkmn == null)
         {
             if (nbEnemyLeft == 0)
@@ -616,12 +626,22 @@ public partial class FightSceneManager : MonoBehaviour {
         internalTime += Time.deltaTime;
 	}
 
+    private void addInParticipantsIfValid(APokemon value)
+    {
+        if (participants.TrueForAll(element => element.GetHashCode() != value.GetHashCode())
+            && value.currentStats.hp > 0)
+        {
+            participants.Add(value);
+        }
+    }
+
     private IEnumerator pokemonActions(int enemyMove, bool enemyUseItem)
     {
         APokemon tmp = player.trainer.party.pokemons[PartyManager.instance.selection];
-        if (playerPkmn != tmp)
+        if (playerPkmn != tmp && tmp.currentStats.hp != 0)
         {
             bool afterChangeFaint = (playerPkmn.currentStats.hp == 0);
+            addInParticipantsIfValid(playerPkmn);
             playerPkmn = tmp;
             playerPkmn.initInBattleStats();
             playerPkmnChange = true;
