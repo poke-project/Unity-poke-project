@@ -119,7 +119,6 @@ public partial class FightSceneManager
         int dmgs;
         dmgs = (int)(((((2 * (float)user.lvl) + 10) / 250) * (userAttack / targetDefense)
             * move.EnemyEffect.hp + 2) * modifier);
-        texts.Add(prefix + user.name + " used " + move.MoveName.ToUpper() + "!");
         target.damageReceived = dmgs;
     }
 
@@ -218,6 +217,7 @@ public partial class FightSceneManager
         {
             return;
         }
+        texts.Add(prefix + user.name + " used " + usedMove.MoveName.ToUpper() + "!");
         moveStatsProcess(usedMove.EnemyEffect, target);
         moveStatsProcess(usedMove.SelfEffect, user);
         moveDamagesProcess(usedMove, user, target);

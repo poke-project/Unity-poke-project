@@ -13,6 +13,8 @@ public class BagManager : MonoBehaviour {
     public int nbItems;
     [HideInInspector]
     public bool cancelSelected;
+    [HideInInspector]
+    public bool setPartyUIActive;
  
     public Bag bag;
 
@@ -22,6 +24,7 @@ public class BagManager : MonoBehaviour {
     {
         instance = this;
         maxDisplay = 3;
+        setPartyUIActive = false;
     }
 
 	// Use this for initialization
@@ -50,15 +53,11 @@ public class BagManager : MonoBehaviour {
         updateSelection();
         if (GameManager.instance.inBagMenu && Input.GetKeyDown(KeyCode.Space))
         {
-            if (!cancelSelected && !GameManager.instance.inFight)
+            if (!cancelSelected && !bag.items[selection].isPokeball)
             {
-                if (!bag.items[selection].isPokeball)
-                {
-                    PartyManager.instance.enabled = true;
-                    PartyManager.instance.selectedItem = bag.items[selection];
-                    WorldUIManager.instance.setPartyUIActive();
-                    //bag.useItem(selection, null);
-                }
+                PartyManager.instance.enabled = true;
+                PartyManager.instance.selectedItem = bag.items[selection];
+                setPartyUIActive = true;
             }
             enabled = false;
         }

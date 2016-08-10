@@ -241,9 +241,9 @@ public partial class FightSceneManager : MonoBehaviour {
     IEnumerator itemWrapper(Trainer user, APokemon first, APokemon second, int itemSelected)
     {
         Item item = user.bag.items[itemSelected];
-        user.bag.useItem(item, first);
         if (item.isPokeball)
         {
+            user.bag.useItem(item, first);
             bool success = false;
             if (item.name == "MasterBall")
             {

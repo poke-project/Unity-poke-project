@@ -6,6 +6,8 @@ public class WorldUIManager : MonoBehaviour
 {
     public static WorldUIManager instance;
 
+    public bool inFight;
+
     private Transform canvas;
     private GameObject menu;
     private GameObject bagUI;
@@ -15,8 +17,11 @@ public class WorldUIManager : MonoBehaviour
     {
         instance = this;
         canvas = GameObject.Find("Canvas").transform;
-        menu = canvas.Find("Menu").gameObject;
-        bagUI = canvas.Find("Bag").gameObject;
+        if (!inFight)
+        {
+            menu = canvas.Find("Menu").gameObject;
+            bagUI = canvas.Find("Bag").gameObject;
+        }
         partyUI = canvas.Find("Party").gameObject;
     }
 
@@ -29,25 +34,28 @@ public class WorldUIManager : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (!inFight)
         {
-            menu.SetActive(!menu.activeInHierarchy);
-        }
-        if (GameManager.instance.inMenu)
-        {
-            if (Input.GetKeyDown(KeyCode.B))
+            if (Input.GetKeyDown(KeyCode.M))
             {
-                bagUI.SetActive(true);
+                menu.SetActive(!menu.activeInHierarchy);
             }
-            if (Input.GetKeyDown(KeyCode.P))
+            if (GameManager.instance.inMenu)
             {
-                partyUI.SetActive(true);
+                if (Input.GetKeyDown(KeyCode.B))
+                {
+                    bagUI.SetActive(true);
+                }
+                if (Input.GetKeyDown(KeyCode.P))
+                {
+                    partyUI.SetActive(true);
+                }
             }
         }	
+        if (BagManager.instance.setPartyUIActive)
+        {
+            partyUI.SetActive(true);
+            BagManager.instance.setPartyUIActive = false;
+        }
 	}
-
-    public void setPartyUIActive()
-    {
-        partyUI.SetActive(true);
-    }
 }
