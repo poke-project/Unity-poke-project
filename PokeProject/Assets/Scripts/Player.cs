@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
 	
 	void Update ()
     {
+        print(trainer.bag.ToString());
 	    if (Input.GetKeyDown(KeyCode.E))
         {
             Application.LoadLevel("fightScene");

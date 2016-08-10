@@ -13,6 +13,16 @@ public class Bag
         isEmpty = true;
     }
 
+    public void loadFromData(ItemData[] data)
+    {
+        foreach (ItemData itemData in data)
+        {
+            Item newItem = new Item();
+            newItem.loadFromData(itemData);
+            items.Add(newItem);
+        }
+    }
+
     public void addItem(Item newItem)
     {
         isEmpty = false;
@@ -79,5 +89,15 @@ public class Bag
     public void useItem(int index, APokemon target)
     {
         useItem(items[index], target);
+    }
+
+    public override string ToString()
+    {
+        string ret = "";
+        foreach (Item item in items)
+        {
+            ret += item.name + " " + item.nbHeld.ToString() + "\n";
+        }
+        return (ret);
     }
 }

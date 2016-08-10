@@ -10,6 +10,7 @@ public class GameData
     [XmlArray(ElementName = "GameObjects")]
     public List<ObjectData> objects;
     public PartyData partyData;
+    public ItemData[] itemsData;
 
     public GameData() { }
 
@@ -17,6 +18,11 @@ public class GameData
     {
         objects = game.objects;
         partyData = new PartyData(game.party);
+        itemsData = new ItemData[game.bag.items.Count];
+        for (int i = 0; i < itemsData.Length; ++i)
+        {
+            itemsData[i] = new ItemData(game.bag.items[i]);
+        }
     }
 }
 
@@ -32,6 +38,8 @@ public class Game
     public Party party;
     [XmlIgnore]
     public Player player;
+    [XmlIgnore]
+    public Bag bag;
 
     [XmlIgnore]
     public Dictionary<string, Object> prefabDic;
@@ -48,6 +56,7 @@ public class Game
     {
         objects = data.objects;
         party.loadFromData(data.partyData);
+        bag.loadFromData(data.itemsData);
     }
 
     public static Game Instance
@@ -75,6 +84,7 @@ public class Game
         objsTransform = GameObject.Find("map").transform;
         player = Object.FindObjectOfType<Player>();
         party = player.trainer.party;
+        bag = player.trainer.bag;
 	}
 	
 	public void	saveCurrentObjects()

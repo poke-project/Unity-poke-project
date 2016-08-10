@@ -578,7 +578,6 @@ public partial class FightSceneManager : MonoBehaviour {
         // block user input during dialogue
         if (inDialogue)
             return;
-        print("update");
         if (enemyPkmn == null)
         {
             if (nbEnemyLeft != 0)
@@ -624,7 +623,7 @@ public partial class FightSceneManager : MonoBehaviour {
             }
             currentSelection = 1;
         }
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKeyDown(KeyCode.Backspace) && playerPkmn.currentStats.hp != 0)
         {
             currentSelection = 1;
             currentMode = eMode.MENU;
@@ -644,9 +643,29 @@ public partial class FightSceneManager : MonoBehaviour {
         }
     }
 
+    private IEnumerator waitForManager()
+    {
+        while (PartyManager.instance.enabled)
+        {
+            yield return null;
+        }
+    }
+
     private IEnumerator pokemonActions(int enemyMove, bool enemyUseItem)
     {
         APokemon tmp = player.trainer.party.pokemons[PartyManager.instance.selection];
+        if (tmp.currentStats.hp == 0 || tmp == playerPkmn)
+        {
+            yield break;
+        }
+        yield return StartCoroutine(waitForManager());
+        tmp = player.trainer.party.pokemons[PartyManager.instance.selection];
+        print(texts);
+        if (playerPkmn.currentStats.hp != 0)
+        {
+            texts.Add(playerPkmn.name + " come back!");
+            yield return StartCoroutine(startDialogue());
+        }
         if (playerPkmn != tmp && tmp.currentStats.hp != 0)
         {
             bool afterChangeFaint = (playerPkmn.currentStats.hp == 0);
@@ -664,6 +683,7 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 endTurn();
             }
+            PartyManager.instance.enabled = false;
         }
     }
     

@@ -7,12 +7,12 @@
         <name>Bulbasaur</name>
         <species>Bulbasaur</species>
         <ivs>
-          <hp>7</hp>
-          <att>15</att>
-          <def>18</def>
-          <attSpe>12</attSpe>
-          <defSpe>14</defSpe>
-          <speed>17</speed>
+          <hp>19</hp>
+          <att>24</att>
+          <def>20</def>
+          <attSpe>3</attSpe>
+          <defSpe>6</defSpe>
+          <speed>8</speed>
           <evasion>0</evasion>
           <accuracy>0</accuracy>
         </ivs>
@@ -27,12 +27,12 @@
           <accuracy>0</accuracy>
         </evs>
         <currentStats>
-          <hp>8</hp>
-          <att>10</att>
+          <hp>20</hp>
+          <att>11</att>
           <def>10</def>
-          <attSpe>12</attSpe>
-          <defSpe>12</defSpe>
-          <speed>20</speed>
+          <attSpe>11</attSpe>
+          <defSpe>11</defSpe>
+          <speed>9</speed>
           <evasion>100</evasion>
           <accuracy>100</accuracy>
         </currentStats>
@@ -42,7 +42,148 @@
         <moves>
           <MoveData>
             <name>Tackle</name>
-            <pp>34</pp>
+            <pp>35</pp>
+          </MoveData>
+          <MoveData>
+            <name>blabla</name>
+            <pp>35</pp>
+          </MoveData>
+        </moves>
+      </PokemonData>
+      <PokemonData>
+        <name>totor</name>
+        <species>Bulbasaur</species>
+        <ivs>
+          <hp>20</hp>
+          <att>23</att>
+          <def>23</def>
+          <attSpe>10</attSpe>
+          <defSpe>9</defSpe>
+          <speed>5</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </ivs>
+        <evs>
+          <hp>0</hp>
+          <att>0</att>
+          <def>0</def>
+          <attSpe>0</attSpe>
+          <defSpe>0</defSpe>
+          <speed>0</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </evs>
+        <currentStats>
+          <hp>20</hp>
+          <att>11</att>
+          <def>11</def>
+          <attSpe>12</attSpe>
+          <defSpe>11</defSpe>
+          <speed>9</speed>
+          <evasion>100</evasion>
+          <accuracy>100</accuracy>
+        </currentStats>
+        <exp>0</exp>
+        <lvl>5</lvl>
+        <status>NORMAL</status>
+        <moves>
+          <MoveData>
+            <name>Tackle</name>
+            <pp>35</pp>
+          </MoveData>
+          <MoveData>
+            <name>blabla</name>
+            <pp>35</pp>
+          </MoveData>
+        </moves>
+      </PokemonData>
+      <PokemonData>
+        <name>bulbattorney</name>
+        <species>Bulbasaur</species>
+        <ivs>
+          <hp>11</hp>
+          <att>12</att>
+          <def>17</def>
+          <attSpe>11</attSpe>
+          <defSpe>6</defSpe>
+          <speed>13</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </ivs>
+        <evs>
+          <hp>0</hp>
+          <att>0</att>
+          <def>0</def>
+          <attSpe>0</attSpe>
+          <defSpe>0</defSpe>
+          <speed>0</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </evs>
+        <currentStats>
+          <hp>20</hp>
+          <att>10</att>
+          <def>10</def>
+          <attSpe>12</attSpe>
+          <defSpe>11</defSpe>
+          <speed>10</speed>
+          <evasion>100</evasion>
+          <accuracy>100</accuracy>
+        </currentStats>
+        <exp>0</exp>
+        <lvl>5</lvl>
+        <status>NORMAL</status>
+        <moves>
+          <MoveData>
+            <name>Tackle</name>
+            <pp>35</pp>
+          </MoveData>
+          <MoveData>
+            <name>blabla</name>
+            <pp>35</pp>
+          </MoveData>
+        </moves>
+      </PokemonData>
+      <PokemonData>
+        <name>bulbapocalypse</name>
+        <species>Bulbasaur</species>
+        <ivs>
+          <hp>1</hp>
+          <att>22</att>
+          <def>3</def>
+          <attSpe>21</attSpe>
+          <defSpe>12</defSpe>
+          <speed>16</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </ivs>
+        <evs>
+          <hp>0</hp>
+          <att>0</att>
+          <def>0</def>
+          <attSpe>0</attSpe>
+          <defSpe>0</defSpe>
+          <speed>0</speed>
+          <evasion>0</evasion>
+          <accuracy>0</accuracy>
+        </evs>
+        <currentStats>
+          <hp>19</hp>
+          <att>11</att>
+          <def>10</def>
+          <attSpe>12</attSpe>
+          <defSpe>12</defSpe>
+          <speed>10</speed>
+          <evasion>100</evasion>
+          <accuracy>100</accuracy>
+        </currentStats>
+        <exp>0</exp>
+        <lvl>5</lvl>
+        <status>NORMAL</status>
+        <moves>
+          <MoveData>
+            <name>Tackle</name>
+            <pp>35</pp>
           </MoveData>
           <MoveData>
             <name>blabla</name>
@@ -52,4 +193,54 @@
       </PokemonData>
     </pokemons>
   </partyData>
+  <itemsData>
+    <ItemData>
+      <name>Potion</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>PokeBall</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>GreatBall</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>UltraBall</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>MasterBall</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>f</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>g</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>h</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>i</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>j</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>k</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+    <ItemData>
+      <name>l</name>
+      <nbHeld>1</nbHeld>
+    </ItemData>
+  </itemsData>
 </GameData>

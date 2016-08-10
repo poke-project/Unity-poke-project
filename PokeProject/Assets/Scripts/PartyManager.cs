@@ -51,7 +51,8 @@ public class PartyManager : MonoBehaviour {
                 selection--;
             }
         }
-        if (GameManager.instance.inPartyMenu && Input.GetKeyDown(KeyCode.Backspace))
+        if (GameManager.instance.inPartyMenu && Input.GetKeyDown(KeyCode.Backspace)
+            && FightSceneManager.instance.playerPkmn.currentStats.hp != 0)
         {
             enabled = false;
         }
@@ -66,7 +67,8 @@ public class PartyManager : MonoBehaviour {
             }
             else if (FightSceneManager.instance != null)
             {
-                if (FightSceneManager.instance.playerPkmn != party.pokemons[selection])
+                if (FightSceneManager.instance.playerPkmn != party.pokemons[selection]
+                    && (party.pokemons[selection].currentStats.hp != 0))
                 {
                     enabled = false;
                 }

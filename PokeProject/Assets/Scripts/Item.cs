@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public delegate void applyEffect(APokemon target);
 
-public class Item
+public class Item : IMySerializable
 {
     public string name { get; private set; }
     public int nbHeld;
@@ -23,6 +23,14 @@ public class Item
         this.name = name;
         nbHeld = 1;
         usableInFight = false;
+    }
+
+    public void loadFromData(IData data)
+    {
+        ItemData itemData = (ItemData)data;
+        name = itemData.name;
+        nbHeld = itemData.nbHeld;
+        // LOAD OTHER DATA FROM A CONSTANT DICTIONARY
     }
 
     public Item(string name, applyEffect effect, bool usableInFight, bool isPokeball)

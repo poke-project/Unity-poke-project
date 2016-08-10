@@ -137,7 +137,6 @@ abstract public class APokemon : IMySerializable
         currentStats = new Statistics(stats);
         status = eStatus.NORMAL;
         moves = new Move[4] { move1, move2, move3, move4 };
-        Debug.Log(stats.ToString());
         gender = 2;
         name = speciesName;
     }
@@ -145,7 +144,6 @@ abstract public class APokemon : IMySerializable
     public APokemon(PokemonData data)
     {
         loadFromData(data);
-        Debug.Log("Max stat " + stats.ToString());
     }
 
     public void loadFromData(IData data)
