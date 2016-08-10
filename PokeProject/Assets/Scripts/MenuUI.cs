@@ -40,6 +40,7 @@ public class MenuUI : MonoBehaviour {
                 boxes[(int)lastMode + 1].SetActive(false);
                 lastMode = FightSceneManager.instance.currentMode;
                 boxes[(int)lastMode + 1].SetActive(true);
+                print(boxes[(int)lastMode + 1]);
             }
         }
         dialogue.text = FightSceneManager.instance.dialogueText;

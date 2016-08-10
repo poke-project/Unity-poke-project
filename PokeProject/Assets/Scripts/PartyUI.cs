@@ -66,7 +66,6 @@ public class PartyUI : MonoBehaviour {
     private void setSlot(GameObject slot, APokemon pokemon)
     {
         // Changer le sprite
-        print("fewiof");
         slot.SetActive(true);
         slot.transform.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>("Sprites/Pokemons/Front/" + pokemon.speciesName);
         slot.transform.Find("Name").GetComponent<Text>().text = pokemon.name;

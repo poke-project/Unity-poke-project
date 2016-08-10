@@ -30,6 +30,7 @@ public class PartyManager : MonoBehaviour {
         if (GameManager.instance != null)
         {
             GameManager.instance.inPartyMenu = true;
+            selection = 0;
         }
     }
 
@@ -61,8 +62,14 @@ public class PartyManager : MonoBehaviour {
                 BagManager.instance.bag.useItem(selectedItem, party.pokemons[selection]);
                 needUIUpdate = true;
                 StartCoroutine(updateHp(party.pokemons[selection]));
-                // Verifier que l'on modifie pas direct dans le sac (avec nbheld)
                 selectedItem = null;
+            }
+            else if (FightSceneManager.instance != null)
+            {
+                if (FightSceneManager.instance.playerPkmn != party.pokemons[selection])
+                {
+                    enabled = false;
+                }
             }
         }
 	}

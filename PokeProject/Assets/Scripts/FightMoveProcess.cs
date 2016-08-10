@@ -193,6 +193,11 @@ public partial class FightSceneManager
 
     private void moveProcess(APokemon user, APokemon target, int moveSelected)
     {
+        // Player did not attack
+        if (moveSelected == -1)
+        {
+            return;
+        }
         Move usedMove = user.moves[moveSelected - 1];
 
         if (usedMove.use() == 0)

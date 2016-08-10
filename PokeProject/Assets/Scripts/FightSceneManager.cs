@@ -190,6 +190,16 @@ public partial class FightSceneManager : MonoBehaviour {
         yield return waitForEndDialogue();
     }
 
+    IEnumerator waitForInput(KeyCode input)
+    {
+        bool negateFirstInput = true;
+        while (negateFirstInput || !Input.GetKeyDown(input))
+        {
+            negateFirstInput = false;
+            yield return null;
+        }
+    }
+
     IEnumerator startDialogue()
     {
         inDialogue = true;
@@ -299,9 +309,20 @@ public partial class FightSceneManager : MonoBehaviour {
         }
         else
         {
-            texts.Add(user.name + " used " + item.name);
-            yield return StartCoroutine(startDialogue());
-            yield return StartCoroutine(updateHp(first));
+            if (first.isEnemy)
+            {
+                user.bag.useItem(item, first);
+                texts.Add(user.name + " used " + item.name);
+                yield return StartCoroutine(startDialogue());
+                yield return StartCoroutine(updateHp(first));
+            }
+            else
+            {
+                yield return StartCoroutine(waitForInput(KeyCode.Space));
+                yield return StartCoroutine(startDialogue());
+                yield return StartCoroutine(updateHp(first));
+                texts.Add(user.name + " used " + item.name);
+            }
         }
     }
 
@@ -436,9 +457,13 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 // Choose other pokemon
                 // will not stay like this
-                playerPkmn = player.trainer.party.getFirstPokemonReady();
+                endTurn();
+                currentMode = eMode.POKEMON;
+                PartyManager.instance.enabled = true;
+                yield break;
+                /*playerPkmn = player.trainer.party.getFirstPokemonReady();
                 playerPkmn.initInBattleStats();
-                playerPkmnChange = true;
+                playerPkmnChange = true;*/
             }
         }
         endTurn();
@@ -560,39 +585,19 @@ public partial class FightSceneManager : MonoBehaviour {
             switch (currentMode)
             {
                 case eMode.MENU:
-                    StartCoroutine(menuActions());
+                    menuActions();
                     break;
 
                 case eMode.FIGHT:
-                    if (!enemyUseItem && (playerPkmn.currentStats.speed > enemyPkmn.currentStats.speed
-                        || (playerPkmn.currentStats.speed == enemyPkmn.currentStats.speed
-                            && Random.Range(0, 100) < 50)))
-                    {
-                        StartCoroutine(runTurn(playerPkmn, enemyPkmn, currentSelection, enemyMove, false));
-                    }
-                    else
-                    {
-                        StartCoroutine(runTurn(enemyPkmn, playerPkmn, currentSelection, enemyMove, enemyUseItem));
-                    }
+                    fightActions(enemyMove, enemyUseItem);
                     break;
 
                 case eMode.BAG:
-                    if (!BagManager.instance.cancelSelected)
-                    {
-                        Item item = player.trainer.bag.items[BagManager.instance.selection];
-                        if (!item.usableInFight || (item.isPokeball && (enemy != null)))
-                        {
-                            StartCoroutine(singleDialogue("Cannot use this item now!"));
-                        }
-                        else
-                        {
-                            StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
-                        }
-                    }
-                    else
-                    {
-                        currentMode = eMode.MENU;
-                    }
+                    bagActions(enemyMove);
+                    break;
+
+                case eMode.POKEMON:
+                    StartCoroutine(pokemonActions(enemyMove, enemyUseItem));
                     break;
 
                 default:
@@ -606,12 +611,69 @@ public partial class FightSceneManager : MonoBehaviour {
             currentSelection = 1;
             currentMode = eMode.MENU;
             BagManager.instance.enabled = false;
+            PartyManager.instance.enabled = false;
         }
         internalTime += Time.deltaTime;
 	}
 
+    private IEnumerator pokemonActions(int enemyMove, bool enemyUseItem)
+    {
+        APokemon tmp = player.trainer.party.pokemons[PartyManager.instance.selection];
+        if (playerPkmn != tmp)
+        {
+            bool afterChangeFaint = (playerPkmn.currentStats.hp == 0);
+            playerPkmn = tmp;
+            playerPkmn.initInBattleStats();
+            playerPkmnChange = true;
+            texts.Add("Go " + playerPkmn.name + "!");
+            yield return StartCoroutine(startDialogue());
+            if (!afterChangeFaint)
+            {
+                yield return StartCoroutine(runTurn(enemyPkmn, playerPkmn, -1, enemyMove, enemyUseItem));
+            }
+            else
+            {
+                endTurn();
+            }
+        }
+    }
+    
+    private void bagActions(int enemyMove)
+    {
+        if (!BagManager.instance.cancelSelected)
+        {
+            Item item = player.trainer.bag.items[BagManager.instance.selection];
+            if (!item.usableInFight || (item.isPokeball && (enemy != null)))
+            {
+                StartCoroutine(singleDialogue("Cannot use this item now!"));
+            }
+            else
+            {
+                StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
+            }
+            currentMode = eMode.POKEMON;
+        }
+        else
+        {
+            currentMode = eMode.MENU;
+        }
+    }
 
-    private IEnumerator menuActions()
+    private void fightActions(int enemyMove, bool enemyUseItem)
+    {
+        if (!enemyUseItem && (playerPkmn.currentStats.speed > enemyPkmn.currentStats.speed
+            || (playerPkmn.currentStats.speed == enemyPkmn.currentStats.speed
+                && Random.Range(0, 100) < 50)))
+        {
+            StartCoroutine(runTurn(playerPkmn, enemyPkmn, currentSelection, enemyMove, false));
+        }
+        else
+        {
+            StartCoroutine(runTurn(enemyPkmn, playerPkmn, currentSelection, enemyMove, enemyUseItem));
+        }
+    }
+
+    private void menuActions()
     {
         switch ((eMode)currentSelection)
         {
@@ -619,7 +681,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.FIGHT:
-                    print("in fight");
+                print("in fight");
                 break;
 
             case eMode.BAG:
@@ -627,7 +689,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.POKEMON:
-                print("POKEMON");
+                PartyManager.instance.enabled = true;
                 break;
 
             case eMode.RUN:
@@ -639,7 +701,6 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
         }
         currentMode = (eMode)currentSelection;
-        yield return null;
     }
 
     private void exitFight()
