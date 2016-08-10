@@ -253,6 +253,4 @@ public partial class FightSceneManager
         yield return StartCoroutine(startDialogue());
         yield return StartCoroutine(updateHp(user));
     }
-
-
 }

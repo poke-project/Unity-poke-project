@@ -5,7 +5,7 @@ public class BagManager : MonoBehaviour {
 
     public static BagManager instance;
 
-    [HideInInspector]
+    //[HideInInspector]
     public int selection;
     [HideInInspector]
     public int cursorPos;

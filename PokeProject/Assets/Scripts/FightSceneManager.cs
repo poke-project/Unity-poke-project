@@ -80,7 +80,7 @@ public partial class FightSceneManager : MonoBehaviour {
         enemyPkmn.initInBattleStats();
         enemyPkmn.isEnemy = true;
 
-        //enemy = null;
+        enemy = null;
 
         if (enemy == null)
         {
@@ -195,6 +195,11 @@ public partial class FightSceneManager : MonoBehaviour {
         while (negateFirstInput || !Input.GetKeyDown(input))
         {
             negateFirstInput = false;
+            if (Input.GetKeyDown(KeyCode.Backspace))
+            {
+                endTurn();
+                StopAllCoroutines();
+            }
             yield return null;
         }
     }
@@ -252,7 +257,6 @@ public partial class FightSceneManager : MonoBehaviour {
         Item item = user.bag.items[itemSelected];
         if (item.isPokeball)
         {
-            user.bag.useItem(item, first);
             bool success = false;
             if (item.name == "MasterBall")
             {
@@ -305,21 +309,23 @@ public partial class FightSceneManager : MonoBehaviour {
             enemyCaught = success;
             yield return StartCoroutine(updateShake());
             yield return StartCoroutine(startDialogue());
+            user.bag.useItem(item, first);
         }
         else
         {
             if (first.isEnemy)
             {
-                user.bag.useItem(item, first);
                 texts.Add(user.name + " used " + item.name);
                 yield return StartCoroutine(startDialogue());
                 yield return StartCoroutine(updateHp(first));
+                user.bag.useItem(item, first);
             }
             else
             {
                 yield return StartCoroutine(waitForInput(KeyCode.Space));
                 yield return StartCoroutine(startDialogue());
                 yield return StartCoroutine(updateHp(first));
+                user.bag.useItem(item, first);
                 texts.Add(user.name + " used " + item.name);
             }
         }
@@ -327,6 +333,7 @@ public partial class FightSceneManager : MonoBehaviour {
 
     IEnumerator processPokemonCaught(APokemon pokemon)
     {
+        pokemon.currentStats = pokemon.stats;
         if (!player.pokedex.isPokemonKnown(pokemon))
         {
             // Add pokemon in pokedex
@@ -334,8 +341,6 @@ public partial class FightSceneManager : MonoBehaviour {
         }
 
         // Renommer pokemon
-        player.trainer.party.addPokemonInParty(pokemon);
-
         if (player.trainer.party.nbInParty >= 6)
         {
             texts.Add("No more slot in party\n" + pokemon.name + " sent to storage!");
@@ -344,6 +349,9 @@ public partial class FightSceneManager : MonoBehaviour {
         {
             texts.Add(pokemon.name + " added in the party!");
         }
+
+        player.trainer.party.addPokemonInParty(pokemon);
+
         yield return StartCoroutine(startDialogue());
         nbEnemyLeft--;
     }
@@ -570,20 +578,20 @@ public partial class FightSceneManager : MonoBehaviour {
         // block user input during dialogue
         if (inDialogue)
             return;
-        print(playerPkmn.GetHashCode());
+        print("update");
         if (enemyPkmn == null)
         {
-            if (nbEnemyLeft == 0)
-            {
-                exitFight();
-            }
-            else
+            if (nbEnemyLeft != 0)
             {
                 enemyPkmn = enemy.party.getFirstPokemonReady();
                 enemyPkmn.initInBattleStats();
                 enemyPkmn.isEnemy = true;
                 enemyPkmnChange = true;
             }
+        }
+        if (nbEnemyLeft == 0)
+        {
+            exitFight();
         }
         updateSelection();
         controlStatus(playerPkmn);
@@ -622,6 +630,7 @@ public partial class FightSceneManager : MonoBehaviour {
             currentMode = eMode.MENU;
             BagManager.instance.enabled = false;
             PartyManager.instance.enabled = false;
+            inDialogue = false;
         }
         internalTime += Time.deltaTime;
 	}
@@ -671,7 +680,10 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 StartCoroutine(runTurn(playerPkmn, enemyPkmn, BagManager.instance.selection, enemyMove, true));
             }
-            currentMode = eMode.POKEMON;
+            if (!item.isPokeball)
+            {
+                currentMode = eMode.POKEMON;
+            }
         }
         else
         {
@@ -701,7 +713,6 @@ public partial class FightSceneManager : MonoBehaviour {
                 break;
 
             case eMode.FIGHT:
-                print("in fight");
                 break;
 
             case eMode.BAG:
