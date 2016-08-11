@@ -48,27 +48,26 @@ public class GameManager : MonoBehaviour {
 
     public void checkEncounter()
     {
-        // Should get type of area in parameters
-        int rand = Random.Range(1, 1880);
-        if (rand <= 100)
+        float rand = Random.Range(0f, 100f);
+        if (rand <= 0.66f)
         {
-            print("Very common");
+            print("Very rare");
         }
-        else if (rand <= 185)
-        {
-            print("Common");
-        }
-        else if (rand <= 252)
-        {
-            print("Semi-rare");
-        }
-        else if (rand <= 285)
+        else if (rand <= 2.436f)
         {
             print("Rare");
         }
-        else if (rand <= 297)
+        else if (rand <= 6.036f)
         {
-            print("Very rare");
+            print("Semi-rare");
+        }
+        else if (rand <= 10.57f)
+        {
+            print("Common");
+        }
+        else if (rand <= 15.9f)
+        {
+            print("Very common");
         }
     }
 }
