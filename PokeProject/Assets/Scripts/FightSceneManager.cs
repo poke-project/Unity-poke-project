@@ -64,7 +64,7 @@ public partial class FightSceneManager : MonoBehaviour {
         enemy = new Trainer();
         applyEffect toto = target => target.damageReceived = -20;
         Item potion = new Item("Potion", toto, true, false);
-        enemy.bag.addItem(potion);
+        //enemy.bag.addItem(potion);
         APokemon newEnemyPkmn = new Bulbasaur();
         newEnemyPkmn.name = "deuxieme";
         enemy.party.addPokemonInParty(newEnemyPkmn);
@@ -80,7 +80,7 @@ public partial class FightSceneManager : MonoBehaviour {
         enemyPkmn.initInBattleStats();
         enemyPkmn.isEnemy = true;
 
-        enemy = null;
+        //enemy = null;
 
         if (enemy == null)
         {
@@ -580,7 +580,7 @@ public partial class FightSceneManager : MonoBehaviour {
             return;
         if (enemyPkmn == null)
         {
-            if (nbEnemyLeft != 0)
+            if (enemy.party.getFirstPokemonReady() != null )
             {
                 enemyPkmn = enemy.party.getFirstPokemonReady();
                 enemyPkmn.initInBattleStats();
@@ -588,7 +588,7 @@ public partial class FightSceneManager : MonoBehaviour {
                 enemyPkmnChange = true;
             }
         }
-        if (nbEnemyLeft == 0)
+        if (enemy.party.getFirstPokemonReady() == null )
         {
             exitFight();
         }

@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
 	void Update ()
     {
         print(trainer.bag.ToString());
+        print(trainer.party.getFirstPokemonReady().move1.CurrentPP);
 	    if (Input.GetKeyDown(KeyCode.E))
         {
             Application.LoadLevel("fightScene");
@@ -62,32 +63,18 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B))
         {
             applyEffect toto = target => target.damageReceived = -20;
-            Item potion = new Item("Potion", toto, true, false);
-            Item pokeBall = new Item("PokeBall", null, true, true);
-            Item greatBall = new Item("GreatBall", null, true, true);
-            Item ultraBall = new Item("UltraBall", null, true, true);
-            Item masterBall = new Item("MasterBall", null, true, true);
-            Item f = new Item("f");
-            Item g = new Item("g");
-            Item h = new Item("h");
-            Item i = new Item("i");
-            Item j = new Item("j");
-            Item k = new Item("k");
-            Item l = new Item("l");
+            //Item potion = new Item("Potion", toto, true, false);
+            Item potion = new Item("Potion");
+            Item pokeBall = new Item("PokeBall");
+            Item greatBall = new Item("GreatBall");
+            Item ultraBall = new Item("UltraBall");
+            Item masterBall = new Item("MasterBall");
             trainer.bag.addItem(potion);
             trainer.bag.addItem(pokeBall);
             trainer.bag.addItem(greatBall);
             trainer.bag.addItem(ultraBall);
             trainer.bag.addItem(masterBall);
-            trainer.bag.addItem(f);
-            trainer.bag.addItem(g);
-            trainer.bag.addItem(h);
-            trainer.bag.addItem(i);
-            trainer.bag.addItem(j);
-            trainer.bag.addItem(k);
-            trainer.bag.addItem(l);
-
-            if (GameManager.instance.inMenu)
+           if (GameManager.instance.inMenu)
             {
                 BagManager.instance.enabled = true;
             }

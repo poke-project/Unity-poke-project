@@ -36,12 +36,16 @@ public class PokemonData : IData
 
         status = pokemon.status;
 
-        moves = new List<MoveData>();
+        moves = new List<MoveData>(4);
         foreach (Move move in pokemon.moves)
         {
             if (move != null)
             {
                 moves.Add(new MoveData(move));
+            }
+            else
+            {
+                moves.Add(null);
             }
         }
     }

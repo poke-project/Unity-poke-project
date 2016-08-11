@@ -20,7 +20,8 @@ public enum eStatus
     POISONED,
     SLEEPING,
     CONFUSED,
-    NORMAL
+    NORMAL,
+    NULL
 }
 
 
@@ -107,10 +108,10 @@ abstract public class APokemon : IMySerializable
         }
     }
     public Move[] moves;
-    public abstract Move move1 { get; set; }
-    public abstract Move move2 { get; set; }
-    public abstract Move move3 { get; set; }
-    public abstract Move move4 { get; set; }
+    public Move move1;// { get; set; }
+    public Move move2;// { get; set; }
+    public Move move3;// { get; set; }
+    public Move move4;//{ get; set; }
 
     // 0 == female 1 == genderless 2 == male
     public int gender;
@@ -139,6 +140,8 @@ abstract public class APokemon : IMySerializable
         moves = new Move[4] { move1, move2, move3, move4 };
         gender = 2;
         name = speciesName;
+        Debug.Log("abstract constructor");
+        Debug.Log(move1);
     }
 
     public APokemon(PokemonData data)
@@ -159,7 +162,25 @@ abstract public class APokemon : IMySerializable
         status = pokemonData.status;
         updateAllStats();
         updateThreshold();
-        // Recreate moves from names ? dictionary maybe
+        move1 = createMoveFromData(pokemonData.moves[0]);
+        move2 = createMoveFromData(pokemonData.moves[1]);
+        move3 = createMoveFromData(pokemonData.moves[2]);
+        move4 = createMoveFromData(pokemonData.moves[3]);
+        moves = new Move[4] { move1, move2, move3, move4 };
+    }
+
+    private Move createMoveFromData(MoveData data)
+    {
+        if (data != null)
+        {
+            Move ret = new Move();
+            ret.loadFromData(data);
+            return (ret);
+        }
+        else
+        {
+            return (null);
+        }
     }
 
     private void levelUp(int expGain)

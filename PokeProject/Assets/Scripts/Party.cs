@@ -22,11 +22,14 @@ public class Party : IMySerializable
         PartyData partyData = (PartyData)data;
         Debug.Log("Load from data");
         nbInParty = partyData.pokemons.Length;
-        pokemons = new APokemon[nbInParty];
+        pokemons = new APokemon[6];
         for (int i = 0; i < nbInParty; ++i)
         {
             pokemons[i] = new Bulbasaur(partyData.pokemons[i]);
         }
+        Debug.Log(pokemons[0].move1.CurrentPP);
+        Debug.Log(pokemons[1].move1.CurrentPP);
+        Debug.Log(pokemons[2].move1.CurrentPP);
     }
 
     public Party(PartyData data)

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public delegate void applyEffect(APokemon target);
 
-public class Item : IMySerializable
+public partial class Item : IMySerializable
 {
     public string name { get; private set; }
     public int nbHeld;
@@ -22,7 +22,7 @@ public class Item : IMySerializable
     {
         this.name = name;
         nbHeld = 1;
-        usableInFight = false;
+        setAttributesFromName(name);
     }
 
     public void loadFromData(IData data)
@@ -30,7 +30,7 @@ public class Item : IMySerializable
         ItemData itemData = (ItemData)data;
         name = itemData.name;
         nbHeld = itemData.nbHeld;
-        // LOAD OTHER DATA FROM A CONSTANT DICTIONARY
+        setAttributesFromName(name);
     }
 
     public Item(string name, applyEffect effect, bool usableInFight, bool isPokeball)
@@ -45,12 +45,14 @@ public class Item : IMySerializable
 
     public Item(Item source)
     {
-        name = source.name;
+        Debug.Log("ON DEVRAIT PAS PASSER LA");
+        throw new System.Exception("Do not use copy constructor");
+        /*name = source.name;
         nbHeld = 1;
         usableInFight = source.usableInFight;
         use = source.use;
         isPokeball = source.isPokeball;
-        setCatchRate();
+        setCatchRate();*/
     }
 
     private void setCatchRate()
@@ -69,12 +71,14 @@ public class Item : IMySerializable
                     ballMod = 200;
                     break;
 
-                case "UltaBall":
+                case "UltraBall":
                     ballValue = 12;
                     ballMod = 150;
                     break;
 
                 case "MasterBall":
+                    ballValue = 255;
+                    ballMod = 255;
                     break;
 
                 default:

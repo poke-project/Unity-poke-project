@@ -6,6 +6,9 @@ public class Bulbasaur : APokemon {
 
     public Bulbasaur()
     {
+        move1 = new Move("Tackle");
+        move2 = new Move("blabla");
+        moves = new Move[4] { move1, move2, move3, move4 };
     }
 
     public Bulbasaur(PokemonData data) : base(data)
@@ -126,13 +129,11 @@ public class Bulbasaur : APokemon {
         }
     }
 
-    public override Move move1
+    /*public override Move move1
     {
         get
         {
-            Statistics enemyEffect = new Statistics(140, 0, 0, 0, 0, 0, 0, 0);
-            Statistics selfEffect = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
-            return (new Move("Tackle", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1, 100));
+            return new Move("Tackle");
         }
         set
         {
@@ -143,9 +144,7 @@ public class Bulbasaur : APokemon {
     {
         get
         {
-            Statistics enemyEffect = new Statistics(0, 1, 0, 0, 0, 0, 0, 0);
-            Statistics selfEffect = new Statistics(0, 0, 0, 0, 0, 0, 0, 0);
-            return (new Move("blabla", 35, enemyEffect, selfEffect, eStatus.NORMAL, eStatus.NORMAL, new Normal(), 1, 100));
+            return new Move("blabla");
         }
         set
         {
@@ -172,5 +171,5 @@ public class Bulbasaur : APokemon {
         set
         {
         }
-    }
+    }*/
 }
