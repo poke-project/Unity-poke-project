@@ -134,7 +134,7 @@ public partial class FightSceneManager
         }
     }
 
-    private void moveStatsProcess(Statistics effect, APokemon target)
+    public void moveStatsProcess(Statistics effect, APokemon target)
     {
         if (effect.hasStatEffect())
         {

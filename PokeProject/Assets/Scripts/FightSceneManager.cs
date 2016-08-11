@@ -444,7 +444,7 @@ public partial class FightSceneManager : MonoBehaviour {
             {
                 if (receiver.currentStats.hp > 0)
                 {
-                    receiver.receiveEvs(pokemon.lootEvs);
+                    receiver.receiveEvs(pokemon.lootEvs, 255);
                     texts.Add(receiver.name + " gained " + expGain.ToString() + " EXP. Points!");
                     yield return StartCoroutine(startDialogue());
                     if (receiver == playerPkmn)

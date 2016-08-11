@@ -26,11 +26,6 @@ public class Bag
     public void addItem(Item newItem)
     {
         isEmpty = false;
-        if (items.Count > 20)
-        {
-            Debug.Log("Not enough slots in bag");
-            return;
-        }
         if (items.Count == 0)
         {
             items.Add(newItem);
@@ -45,6 +40,11 @@ public class Bag
             }
             else if ((i == (items.Count - 1)))
             {
+                if (items.Count > 19)
+                {
+                    Debug.Log("Not enough slots in bag");
+                    return;
+                }
                 items.Add(newItem);
                 break;
             }

@@ -140,8 +140,6 @@ abstract public class APokemon : IMySerializable
         moves = new Move[4] { move1, move2, move3, move4 };
         gender = 2;
         name = speciesName;
-        Debug.Log("abstract constructor");
-        Debug.Log(move1);
     }
 
     public APokemon(PokemonData data)
@@ -316,25 +314,31 @@ abstract public class APokemon : IMySerializable
         }
     }
 
-    public void receiveEvs(Statistics evsGain)
+    public void receiveEvs(Statistics evsGain, int cap)
     {
         int diff = 510 - getTotalEvs();
         if (diff > 0)
         {
-            addEvWithCap(ref Evs.hp, evsGain.hp, diff);
-            addEvWithCap(ref Evs.att, evsGain.att, diff);
-            addEvWithCap(ref Evs.def, evsGain.def, diff);
-            addEvWithCap(ref Evs.attSpe, evsGain.attSpe, diff);
-            addEvWithCap(ref Evs.defSpe, evsGain.defSpe, diff);
-            addEvWithCap(ref Evs.speed, evsGain.speed, diff);
+            addEvWithCap(ref Evs.hp, evsGain.hp, diff, cap);
+            addEvWithCap(ref Evs.att, evsGain.att, diff, cap);
+            addEvWithCap(ref Evs.def, evsGain.def, diff, cap);
+            addEvWithCap(ref Evs.attSpe, evsGain.attSpe, diff, cap);
+            addEvWithCap(ref Evs.defSpe, evsGain.defSpe, diff, cap);
+            addEvWithCap(ref Evs.speed, evsGain.speed, diff, cap);
         }
     }
 
-    private void addEvWithCap(ref int ev, int gain, int diff)
+    private void addEvWithCap(ref int ev, int gain, int diff, int cap)
     {
-        if (gain > diff) gain = diff;
+        if (gain > diff)
+        {
+            gain = diff;
+        }
         int sum = ev + gain;
-        ev = sum > 255 ? 255 : sum;
+        if (ev < cap)
+        {
+            ev = sum > cap ? cap : sum;
+        }
     }
 
     private int getTotalEvs()

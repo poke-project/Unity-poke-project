@@ -52,7 +52,8 @@ public class PartyManager : MonoBehaviour {
             }
         }
         if (GameManager.instance.inPartyMenu && Input.GetKeyDown(KeyCode.Backspace)
-            && FightSceneManager.instance.playerPkmn.currentStats.hp != 0)
+            && ((GameManager.instance.inFight && FightSceneManager.instance.playerPkmn.currentStats.hp != 0)
+                || (!GameManager.instance.inFight)))
         {
             enabled = false;
         }
