@@ -11,8 +11,8 @@ public class PlayerMovement : MonoBehaviour {
         RIGHT
     };
 
-    private Vector3 targetPosition;
-    private Vector3 originPosition;
+    private Vector2 targetPosition;
+    private Vector2 originPosition;
     private bool inMovement;
     private bool freeTarget;
     private bool refresh;
@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour {
         needUpdate = true;
         direction = eDirection.DOWN;
         animator = GetComponent<Animator>();
+        originPosition = transform.position;
 	}
 
     void Update()
@@ -72,24 +73,31 @@ public class PlayerMovement : MonoBehaviour {
                 refresh = false;
                 Invoke("refreshInput", 0.4f);
                 needUpdate = true;
-                if (targetPosition != transform.position)
+                if (targetPosition != (Vector2)transform.position)
                 {
-                    if (AZone.instance.isPositionValid(targetPosition))
+                    if (AZone.instance.isPositionValid(ref targetPosition, direction))
                     {
                         originPosition = transform.position;
                         freeTarget = true;
                     }
                     else
                     {
-                        if (oldDirection != direction)
+                        if (false)
                         {
-                            targetPosition = transform.position;
+
                         }
                         else
                         {
-                            Invoke("stopMovement", 1);
+                            if (oldDirection != direction)
+                            {
+                                targetPosition = transform.position;
+                            }
+                            else
+                            {
+                                Invoke("stopMovement", 1);
+                            }
+                            freeTarget = false;
                         }
-                        freeTarget = false;
                     }
                     inMovement = true;
                 }
@@ -99,7 +107,7 @@ public class PlayerMovement : MonoBehaviour {
         {
             move();
         }
-        if (targetPosition == transform.position && needUpdate)
+        if (targetPosition == (Vector2)transform.position && needUpdate)
         {
             animator.SetBool("isWalking", false);
             inMovement = false;

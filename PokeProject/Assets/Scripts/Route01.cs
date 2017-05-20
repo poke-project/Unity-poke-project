@@ -1,28 +1,31 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
-using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class VilleA : AZone
+public class Route01 : AZone
 {
-    protected override int width
+        protected override int width
     {
         get
         {
-            return (10);
+            return (16);
         }
     }
+
     protected override int height
     {
         get
         {
-            return (10);
+            return (18);
         }
     }
+
     protected override Vector2 spawn
     {
         get
         {
-            return new Vector2(0, 0);
+            return new Vector2(6, 0.5f);
         }
     }
 }

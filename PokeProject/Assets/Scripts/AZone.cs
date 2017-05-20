@@ -9,6 +9,7 @@ abstract public class AZone : MonoBehaviour
     // Width and Height should be set for each zone
     protected abstract int width { get; }
     protected abstract int height { get; }
+    protected abstract Vector2 spawn { get;  }
     // Map is computed on Start
     protected GameObject[,] map;
 
@@ -16,6 +17,7 @@ abstract public class AZone : MonoBehaviour
     {
         instance = this;
         loadMap();
+        print(saveCell);
     }
 
     public AZone getClass()
@@ -23,27 +25,72 @@ abstract public class AZone : MonoBehaviour
         return (this);
     }
 
-    public bool isPositionValid(Vector2 target)
+    public bool isPositionValid(ref Vector2 target, PlayerMovement.eDirection direction)
     {
         int y = (int)target.y;
         int x = (int)target.x;
-        if ((target.y >= 0 && target.y < height) && (target.x >= 0 && target.x < width)
-             && ((map[y, x] == null) || (map[y, x].tag == "Tall grass")))
+        if ((target.y >= 0 && target.y < height) && (target.x >= 0 && target.x < width))
         {
-            return (true);
+            if ((map[y, x] == null) || (map[y, x].CompareTag("Tall grass")))
+            {
+                return (true);
+            }
+            else if (map[y, x].tag.StartsWith("Obstacle"))
+            {
+                switch (direction)
+                {
+                    case PlayerMovement.eDirection.UP:
+                        if (map[y, x].tag.EndsWith("Upward")) {
+                            target.y += 1;
+                            return (true);
+                        }
+                        break;
+                    case PlayerMovement.eDirection.DOWN:
+                        if (map[y, x].tag.EndsWith("Downward")) {
+                            target.y -= 1;
+                            return (true);
+                        }
+                        break;
+                    case PlayerMovement.eDirection.LEFT:
+                        if (map[y, x].tag.EndsWith("Leftward")) {
+                            target.x -= 1;
+                            return (true);
+                         }
+                        break;
+                    case PlayerMovement.eDirection.RIGHT:
+                        if (map[y, x].tag.EndsWith("Rightward")) {
+                            target.x += 1;
+                            return (true);
+                        }
+                        break;
+                }
+                return (false);
+            }
+            return (false);
         }
         else
+        {
             return (false);
+        }
     }
 
+    // Called once the movement is finished so target is where the player is currently standing
     public void updatePlayerPos(Vector2 origin, Vector2 target)
     {
         map[(int)origin.y, (int)origin.x] = saveCell;
         GameObject targetCell = map[(int)target.y, (int)target.x];
-        if (targetCell != null && targetCell.CompareTag("Tall grass"))
+        print(targetCell);
+        if (targetCell != null)
         {
             saveCell = map[(int)target.y, (int)target.x];
-            GameManager.instance.checkEncounter();
+            if (targetCell.CompareTag("Tall grass"))
+            {
+                GameManager.instance.checkEncounter();
+            }
+        }
+        else
+        {
+            saveCell = null;
         }
     }
 
