@@ -82,22 +82,15 @@ public class PlayerMovement : MonoBehaviour {
                     }
                     else
                     {
-                        if (false)
+                        if (oldDirection != direction)
                         {
-
+                            targetPosition = transform.position;
                         }
                         else
                         {
-                            if (oldDirection != direction)
-                            {
-                                targetPosition = transform.position;
-                            }
-                            else
-                            {
-                                Invoke("stopMovement", 1);
-                            }
-                            freeTarget = false;
+                            Invoke("stopMovement", 1);
                         }
+                        freeTarget = false;
                     }
                     inMovement = true;
                 }
